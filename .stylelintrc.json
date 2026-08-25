@@ -1,0 +1,73 @@
+{
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "selector-class-pattern": null,
+    "custom-property-empty-line-before": null,
+    "declaration-empty-line-before": null,
+    "no-descending-specificity": null,
+    "color-no-hex": [
+      true,
+      {
+        "message": "Couleur littérale interdite. Utilise un token de @5sync/tokens — voir packages/tokens/README.md."
+      }
+    ],
+    "declaration-property-value-disallowed-list": [
+      {
+        "/^(color|background|background-color|border|border-color|border-.*-color|outline|outline-color|fill|stroke|box-shadow|caret-color)$/": [
+          "/rgba?\\(/",
+          "/hsla?\\(/",
+          "/^(red|blue|green|black|white|grey|gray|orange|gold)$/"
+        ]
+      },
+      {
+        "message": "Couleur littérale interdite hors de packages/tokens. Déclare-la comme token, nommée par son rôle."
+      }
+    ],
+    "declaration-property-value-allowed-list": [
+      {
+        "font-size": [
+          "/^var\\(--/",
+          "inherit",
+          "/em$/",
+          "/^clamp\\(/",
+          "/%$/"
+        ],
+        "font-family": [
+          "/^var\\(--/",
+          "inherit"
+        ]
+      },
+      {
+        "message": "Taille et famille de police doivent venir d'un token — pas d'une valeur en dur."
+      }
+    ],
+    "import-notation": "string",
+    "media-feature-range-notation": "prefix",
+    "declaration-block-single-line-max-declarations": 3,
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": [
+          "global",
+          "local"
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "packages/tokens/*.css"
+      ],
+      "rules": {
+        "color-no-hex": null,
+        "declaration-property-value-disallowed-list": null,
+        "declaration-property-value-allowed-list": null,
+        "comment-empty-line-before": null,
+        "alpha-value-notation": null,
+        "no-duplicate-selectors": null,
+        "declaration-block-single-line-max-declarations": null
+      }
+    }
+  ]
+}

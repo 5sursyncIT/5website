@@ -1,0 +1,65 @@
+# Pile locale et de recette. La production utilise le même fichier avec un
+# .env différent et des images construites en intégration continue.
+#
+#   docker compose -f infra/compose.yml --env-file .env up --build
+#
+# Le socle de données arrive au lot 2 ; postgres est déjà là pour que
+# l'environnement local n'ait pas à changer de forme à ce moment-là.
+
+name: 5sursync
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    depends_on: [web, api]
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/5sursync.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ..
+      dockerfile: infra/web.Dockerfile
+      args:
+        ENABLE_DESIGN_WORKSHOP: ${ENABLE_DESIGN_WORKSHOP:-0}
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      API_INTERNAL_URL: ${API_INTERNAL_URL:-http://api:4000}
+    expose: ["3000"]
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/api.Dockerfile
+    environment:
+      NODE_ENV: production
+      API_PORT: 4000
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose: ["4000"]
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # L'API attend que la base réponde, pas seulement que le conteneur tourne.
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pgdata:

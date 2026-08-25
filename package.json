@@ -1,0 +1,30 @@
+{
+  "name": "5sursync",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspace=@5sync/web",
+    "build": "npm run build --workspace=@5sync/web",
+    "lint:css": "stylelint \"packages/**/*.css\" \"apps/**/*.css\"",
+    "design:pull": "node tools/design-pull.mjs",
+    "test": "node --test apps/*/test/*.test.js packages/*/test/*.test.js",
+    "design:visual": "node tools/visual.mjs",
+    "design:visual:update": "node tools/visual.mjs --update",
+    "db:migrate": "npm run migrate --workspace=@5sync/api",
+    "db:seed": "node db/seeds/demo.js"
+  },
+  "devDependencies": {
+    "pixelmatch": "^7.2.0",
+    "pngjs": "^7.0.0",
+    "stylelint": "^16.10.0",
+    "stylelint-config-standard": "^36.0.1",
+    "wait-on": "^9.1.0"
+  }
+}

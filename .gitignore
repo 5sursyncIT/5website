@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+dist/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+coverage/
+design/baselines/__diff__/
+.env.test

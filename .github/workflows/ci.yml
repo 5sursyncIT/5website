@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verifier:
+    runs-on: ubuntu-latest
+
+    # Les tests d'isolation vérifient un comportement de PostgreSQL, pas du
+    # code : les simuler n'aurait aucun sens. Un faux qui répond « accès
+    # refusé » ne prouve rien sur Row-Level Security.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: 5sync
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: 5sync_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U 5sync -d 5sync_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+
+    env:
+      DATABASE_URL: postgres://5sync:ci@localhost:5432/5sync_ci
+      DATABASE_APP_URL: postgres://app_5sync:ci_app@localhost:5432/5sync_ci
+      DATABASE_APP_PASSWORD: ci_app
+      # Sans ceci, un service PostgreSQL défaillant ferait passer la CI au vert
+      # avec toutes les suites d'isolation sautées.
+      REQUIRE_DB: '1'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # ── Le verrou du design ───────────────────────────────────────────
+      # Aucune couleur ni taille de police en dur hors de packages/tokens.
+      # Bloquant : c'est la seule mesure qui empêche réellement la dérive,
+      # parce qu'elle échoue avant la fusion et non à la relecture.
+      - name: Tokens — aucune valeur littérale
+        run: npm run lint:css
+
+      # Compare la maquette de référence versionnée aux tokens locaux, et
+      # vérifie que classical.css est toujours une copie conforme de Classical.
+      # Échoue si une couleur ou un degré typographique n'est pas tokenisé,
+      # ou si quelqu'un a édité le miroir.
+      - name: Design — écart maquette / tokens
+        run: npm run design:pull
+
+      - name: Migrations
+        run: npm run db:migrate
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  visuel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      # L'atelier doit être publié pour être capturé : la page est
+      # pré-générée, donc la variable se pose AU BUILD.
+      - name: Build avec atelier
+        run: ENABLE_DESIGN_WORKSHOP=1 npm run build
+
+      - name: Servir
+        run: |
+          cd apps/web
+          cp -r public .next/standalone/apps/web/
+          cp -r .next/static .next/standalone/apps/web/.next/
+          PORT=3000 node .next/standalone/apps/web/server.js &
+          npx wait-on http://localhost:3000/atelier -t 30000
+
+      # Compare les 3 largeurs au pixel avec design/baselines/. Une différence
+      # non intentionnelle échoue ici, et non trois semaines plus tard.
+      - name: Régression visuelle
+        run: npm run design:visual
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: differences-visuelles
+          path: design/baselines/__diff__/
