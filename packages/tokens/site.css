@@ -1,0 +1,218 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   COUCHE 2 — « Site »
+   Extraite des styles en ligne de 5Sync IT - Site.dc.html (Claude Design).
+
+   POURQUOI CE FICHIER EXISTE
+   Classical (couche 1) porte le système : couleurs, espaces, rayons, familles.
+   Mais la maquette du site exprime une seconde grammaire que Classical ne
+   contient pas — une échelle typographique éditoriale (héro à 78 px là où
+   Classical plafonne h1 à 42 px) et un rythme vertical de page (sections à
+   96 px, gouttières à 72 px, conteneur à 1240 px). Ces valeurs vivent dans
+   des attributs style="" de la maquette. Sans cette extraction, elles se
+   retrouveraient recopiées à la main composant par composant, et dériveraient.
+
+   MÉTHODE
+   Chaque token ci-dessous correspond à une valeur réellement observée dans la
+   maquette, nommée par son rôle et non par sa valeur, avec le nombre
+   d'occurrences relevées. Aucune valeur n'a été inventée, arrondie ni
+   interpolée. Relevé du 25.08.2026 sur la révision courante.
+
+   MISE À JOUR :  npm run design:pull   (diffe la maquette contre ce fichier)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ─────────────────────────────────────────────────────────────────────────
+     COULEURS
+     Toutes remappées sur les rampes de Classical — sauf une (voir plus bas).
+     Le commentaire donne la valeur littérale observée, pour la traçabilité.
+     ───────────────────────────────────────────────────────────────────────── */
+
+  --site-ink:        var(--color-text);          /* #201f1d — texte courant */
+  --site-muted:      var(--color-neutral-700);   /* #605d5d — 38 occurrences */
+  --site-soft:       var(--color-neutral-600);   /* #7d7979 — 26 occurrences */
+  --site-faint:      var(--color-neutral-500);   /* #9b9797 — compteurs, dates */
+  --site-fainter:    var(--color-neutral-400);   /* #bab6b6 — langue inactive */
+  --site-track:      var(--color-neutral-300);   /* #d7d3d3 — fond de jauge */
+  --site-strong:     var(--color-neutral-800);   /* #444141 — texte appuyé */
+
+  --site-gold:       var(--color-accent);        /* #b68235 — 60 occurrences */
+  --site-gold-deep:  var(--color-accent-700);    /* #7d5411 — liens, statuts */
+  --site-gold-mid:   var(--color-accent-500);    /* #c28d41 — kickers sur sol sombre */
+  --site-gold-light: var(--color-accent-400);    /* #e1ad66 — chiffres sur sol sombre */
+
+  /* Sol sombre. Arbitré par Claude Design le 25.08.2026 : la valeur est
+     conservée et devient un degré de rampe à part entière — neutre-1000, en
+     prolongement du 900 de Classical (#2d2b2b). Ce n'est donc plus un écart
+     à signaler mais une extension assumée de la rampe neutre. */
+  --color-neutral-1000: #1a1917;
+  --site-ground:     var(--color-neutral-1000);
+  --site-on-ground:  var(--color-bg);            /* #f3f2f2 sur sol sombre */
+
+  /* Encres sur sol sombre. La maquette décline neuf opacités du même blanc :
+     ce n'est pas une échelle, c'est un réglage fin fait à l'œil. Elles sont
+     reprises telles quelles plutôt que régularisées — régulariser, ce serait
+     redessiner. */
+  --site-on-ground-94:     rgb(243 242 242 / 94%);  /* fond de l'en-tête collant */
+  --site-on-ground-strong: rgb(243 242 242 / 88%);
+  --site-on-ground-80:     rgb(243 242 242 / 80%);  /* libellé de bouton secondaire */
+  --site-on-ground-body:   rgb(243 242 242 / 72%);  /* chapô du héro */
+  --site-on-ground-68:     rgb(243 242 242 / 68%);
+  --site-on-ground-66:     rgb(243 242 242 / 66%);
+  --site-on-ground-muted:  rgb(243 242 242 / 62%);
+  --site-on-ground-55:     rgb(243 242 242 / 55%);  /* libellé de statistique */
+  --site-on-ground-50:     rgb(243 242 242 / 50%);
+  --site-on-ground-faint:  rgb(243 242 242 / 42%);
+  --site-on-ground-40:     rgb(243 242 242 / 40%);
+  --site-on-ground-28:     rgb(243 242 242 / 28%);  /* filet de bouton secondaire */
+
+  /* Les deux états que la maquette ne dessinait pas, spécifiés par Claude
+     Design le 25.08.2026. Nos valeurs provisoires — des blancs à 8 % et 4 % —
+     sont retirées : la réponse est en or, pas en blanc, ce qui n'est pas un
+     détail. Un survol blanc sur sol sombre délave ; un survol doré tient
+     l'accent. */
+  --site-onground-hover-border: rgb(226 173 102 / 45%);
+  --site-onground-hover-bg:     rgb(226 173 102 / 8%);
+  --site-onground-hover-text:   #e2ad66;
+  --site-onground-thead-bg:     #221f1c;
+  --site-onground-thead-rule:   rgb(226 173 102 / 28%);
+  --site-onground-thead-label:  rgb(243 242 242 / 55%);
+
+  /* Filets. Le filet standard EST --color-divider de Classical (16 %).
+     La maquette en décline deux versions plus légères pour les lignes de
+     tableau et les séparateurs internes de carte. */
+  --site-rule:        var(--color-divider);      /* rgba(32,31,29,.16) — 58 occurrences */
+  --site-rule-soft:   rgb(32 31 29 / 12%);
+  --site-rule-softer: rgb(32 31 29 / 10%);
+  --site-rule-faint:  rgb(32 31 29 / 7%);
+  --site-rule-onground:      rgb(243 242 242 / 14%);
+  --site-rule-onground-16:   rgb(243 242 242 / 16%);
+  --site-rule-onground-gold: rgb(226 173 102 / 30%);
+  --site-rule-onground-gold-50: rgb(226 173 102 / 50%);
+  --site-rule-onground-gold-20: rgb(226 173 102 / 20%);
+  --site-rule-onground-gold-16: rgb(226 173 102 / 16%);
+
+  /* Aplats d'accent utilisés pour l'état actif et le survol */
+  --site-gold-wash:          rgb(182 130 53 / 9%);
+  --site-gold-wash-hover:    rgb(182 130 53 / 5%);   /* .lift:hover de la maquette */
+  --site-gold-wash-onground: rgb(226 173 102 / 12%);
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     TYPOGRAPHIE — ÉCHELLE ÉDITORIALE
+     Trois familles, trois rôles. Cormorant Garamond porte deux graisses
+     distinctes qu'il ne faut pas confondre : 400 pour les titres, 300 pour les
+     grands chiffres. Classical fixe par ailleurs les titres d'interface à 600.
+     ───────────────────────────────────────────────────────────────────────── */
+
+  --site-font-display: var(--font-heading);   /* Cormorant Garamond */
+  --site-font-body:    var(--font-body);      /* Lora */
+  --site-font-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", menlo, monospace;
+
+  /* Titres — Cormorant Garamond 400 (500 sur deux titres de cas) */
+  --site-display-hero:    78px;  /* h1 accueil, unique */
+  --site-display-page:    58px;  /* h1 des 4 pages intérieures */
+  --site-display-contact: 50px;  /* h1 contact, unique */
+  --site-display-cta:     46px;  /* h2 de l'appel à l'action final */
+  --site-title-section:   42px;  /* h2 de section, accueil — 5 occurrences */
+  --site-title-page:      40px;  /* h2 de section, pages intérieures — 6 occurrences */
+  --site-title-app:       38px;  /* h1 des portails, h2 des cas — 6 occurrences */
+  --site-title-lg:        32px;  /* h2 d'expertise détaillée */
+  --site-title-md:        25px;  /* titre de bloc */
+  --site-title-sm:        21px;  /* h3 de carte */
+  --site-title-xs:        17px;  /* h3 dense, navigation */
+
+  /* Chiffres — Cormorant Garamond 300, tabulaires */
+  --site-figure-weight: 300;
+  --site-figure-xl:     66px;
+  --site-figure-lg:     62px;
+  --site-figure-md:     46px;   /* statistiques du héro */
+  --site-figure-sm:     44px;
+  --site-figure-xs:     34px;   /* numéros d'étape */
+
+  /* KPI de portail — Cormorant Garamond 400, tabulaires */
+  --site-kpi:    36px;  /* espace client */
+  --site-kpi-sm: 34px;  /* back-office */
+
+  /* Titres d'interface — Cormorant Garamond 600.
+     À ne pas confondre avec les titres éditoriaux ci-dessus, qui sont en 400.
+     Classical documente ce plafond : « semibold est le maximum des titres
+     d'interface, ils ont besoin de la graisse aux petites tailles ». Ces six
+     degrés sont ceux des portails, des cartes et de la navigation. */
+  --site-ui-title-lg: 24px;  /* nom du client, tête de navigation latérale */
+  --site-ui-title:    23px;
+  --site-ui-title-md: 22px;
+  --site-ui-title-sm: 20px;
+  --site-ui-title-xs: 19px;
+  --site-ui-strong:   16px;  /* libellé appuyé, bouton du héro */
+
+  /* Corps — Lora */
+  --site-lede:       18px;   /* chapô du héro */
+  --site-body-lg:    16.5px; /* texte de section */
+  --site-body-md:    15.5px; /* texte de carte long */
+  --site-body:       15px;   /* texte courant — 11 occurrences */
+  --site-body-card:  14.5px; /* description de carte — 9 occurrences */
+  --site-body-sm:    14px;   /* cellules de tableau, boutons — 19 occurrences */
+  --site-note:       13.5px;
+  --site-note-alt:   13px;
+  --site-note-sm:    12.5px;
+  --site-note-xs:    11.5px;
+
+  /* Étiquettes — IBM Plex Mono, toujours en capitales et interlettrées */
+  --site-label:    11px;    /* 33 occurrences */
+  --site-label-sm: 10.5px;  /* 19 occurrences */
+  --site-label-xs: 10px;    /* 22 occurrences */
+
+  /* Interlettrage — négatif sur les titres, positif sur les étiquettes */
+  --site-tracking-display: -0.02em;
+  --site-tracking-title:   -0.015em;
+  --site-tracking-label:   0.12em;
+  --site-tracking-kicker:  0.18em;
+  --site-tracking-hero:    0.22em;
+
+  /* Interlignage */
+  --site-leading-display: 1.02;
+  --site-leading-title:   1.1;
+  --site-leading-body:    1.6;
+  --site-leading-prose:   1.75;  /* paragraphes justifiés de section */
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     MISE EN PAGE — RYTHME VERTICAL ET CONTENEUR
+     Classical fournit --space-1..8 (4,6 à 36,8 px), une échelle d'espacement
+     de composant. La maquette travaille à une tout autre échelle pour la page.
+     ───────────────────────────────────────────────────────────────────────── */
+
+  --site-shell:   1240px;  /* conteneur — 27 occurrences, jamais dérogé */
+  --site-inset:   32px;    /* marge interne horizontale du conteneur */
+
+  --site-section:      96px;  /* respiration de section, valeur haute */
+  --site-section-md:   88px;
+  --site-section-sm:   76px;  /* valeur la plus fréquente — 9 occurrences */
+  --site-section-tight: 72px;
+
+  --site-gutter:    72px;  /* gouttière des grilles à deux colonnes */
+  --site-gutter-md: 40px;
+  --site-gutter-sm: 26px;
+
+  --site-app-inset-y: 34px;  /* zone de contenu des portails */
+  --site-app-inset-x: 40px;
+
+  --site-rail-client: 252px; /* navigation latérale, espace client */
+  --site-rail-admin:  236px; /* navigation latérale, back-office */
+  --site-aside:       300px; /* colonne de cartes du portail */
+
+  --site-header-h: 60px;     /* en-tête collant */
+
+  /* Largeurs de lecture relevées, du plus large au plus étroit. Neuf valeurs
+     pour neuf blocs de texte : la maquette règle chaque colonne sur sa propre
+     longueur de ligne plutôt que d'appliquer une mesure unique. */
+  --site-measure-900: 900px;
+  --site-measure-880: 880px;
+  --site-measure-860: 860px;
+  --site-measure-820: 820px;
+  --site-measure-780: 780px;
+  --site-measure:     720px;  /* la plus fréquente */
+  --site-measure-620: 620px;
+  --site-measure-560: 560px;  /* chapô du héro */
+  --site-measure-420: 420px;
+
+  --site-ease: 0.18s ease;   /* transitions .lift et .navlink */
+}

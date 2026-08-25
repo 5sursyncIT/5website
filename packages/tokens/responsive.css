@@ -1,0 +1,100 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   COUCHE 3 — « Responsive »
+   Source : Artboards - Espace client.dc.html (Claude Design, 25.08.2026)
+
+   POURQUOI UNE TROISIÈME COUCHE
+   Les couches 1 et 2 décrivent une seule largeur. Celle-ci décrit comment le
+   système se comporte quand la fenêtre change. Elle ne redéfinit que des
+   valeurs déjà déclarées ailleurs — jamais de nouveau rôle : un token qui
+   n'existe pas en 1440 n'existe à aucune largeur.
+
+   PALIERS — quatre, arrêtés par Claude Design
+     1440   référence
+     1024   le rail de 252 px devient un bandeau d'onglets défilants
+      768   les KPI passent de 4 à 2 ; les cartes montent au-dessus du contenu
+      390   la rangée-fiche empile référence et statut sur leur propre ligne
+
+   PALIERS FIXES, PAS D'INTERPOLATION FLUIDE — et c'est un choix, pas une
+   facilité. Cormorant Garamond demande un interlettrage propre à chaque degré ;
+   une valeur intermédiaire non contrôlée se voit. Trois valeurs par degré,
+   vérifiables une à une, plutôt qu'un continuum que personne ne relit.
+
+   ⚠  LE PALIER 1024 N'EST PAS DESSINÉ. Claude Design le déclare mais ne le
+   montre pas. Les valeurs typographiques y sont donc celles de 1440 — choix
+   conservateur et réversible : à 1024 c'est la mise en page qui bascule, pas
+   la typographie. Les trois points réellement indécidables (colonne de cartes,
+   nombre de KPI, forme de l'en-tête) sont en attente d'artboard et ne sont pas
+   devinés ici. Voir reponse-integration-01.md dans le projet Claude Design.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --bp-lg: 1024px;
+  --bp-md: 768px;
+  --bp-sm: 390px;
+}
+
+/* ── 1024 px — bascule de mise en page, typographie inchangée ────────────── */
+@media (max-width: 1024px) {
+  :root {
+    --site-rail-client: 0px;   /* le rail cède au bandeau d'onglets */
+    --site-rail-admin:  0px;
+  }
+}
+
+/* ── 768 px ──────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  :root {
+    --site-display-hero:  54px;
+    --site-display-page:  42px;
+    --site-title-app:     32px;
+    --site-title-section: 32px;
+    --site-title-page:    32px;
+    --site-kpi:           30px;
+    --site-kpi-sm:        30px;
+
+    --site-shell:       100%;
+    --site-inset:       24px;
+    --site-app-inset-y: 28px;
+    --site-app-inset-x: 24px;
+    --site-aside:       100%;
+
+    --site-section:       56px;
+    --site-section-md:    52px;
+    --site-section-sm:    48px;
+    --site-section-tight: 44px;
+    --site-gutter:        32px;
+    --site-gutter-md:     24px;
+  }
+}
+
+/* ── 390 px ──────────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  :root {
+    --site-display-hero:  38px;
+    --site-display-page:  31px;
+    --site-title-app:     27px;
+    --site-title-section: 26px;
+    --site-title-page:    26px;
+    --site-kpi:           26px;
+    --site-kpi-sm:        26px;
+
+    --site-inset:       18px;
+    --site-app-inset-y: 22px;
+    --site-app-inset-x: 18px;
+
+    --site-section:       40px;
+    --site-section-md:    38px;
+    --site-section-sm:    36px;
+    --site-section-tight: 32px;
+    --site-gutter:        24px;
+    --site-gutter-md:     18px;
+  }
+}
+
+/* Le titre de la rangée-fiche ne bouge pas : 17,5 px à 1440, 17 px partout
+   ailleurs. C'est le champ que l'agent lit — il ne rétrécit pas avec l'écran. */
+:root { --site-fiche-titre: 17.5px; }
+
+@media (max-width: 1024px) {
+  :root { --site-fiche-titre: 17px; }
+}

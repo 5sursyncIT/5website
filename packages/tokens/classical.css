@@ -1,0 +1,497 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   COUCHE 1 — « Classical »
+   Miroir fidèle de styles.css du design system Classical (Claude Design).
+
+   ⚠  NE PAS ÉDITER À LA MAIN. Ce fichier est un miroir.
+      Pour le mettre à jour :  npm run design:pull
+      Toute retouche se fait dans Claude Design, jamais ici.
+
+   Source : projet 79586523-4316-460a-9d3c-d9cfd6af9384
+            _ds/classical-96dd271e-e263-4e39-af96-cb383b9d2633/styles.css
+
+   ÉCART ASSUMÉ, ET LE SEUL : la règle @import des Google Fonts a été retirée.
+   Les trois familles sont auto-hébergées par apps/web (voir app/fonts.js).
+   Motif : un aller-retour réseau de moins, et aucune IP de visiteur transmise
+   à un tiers. Les noms de familles restent identiques, donc le rendu aussi.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --color-bg: #f3f2f2;
+  --color-surface: #eae9e9;
+  --color-text: #201f1d;
+  --color-accent: #b68235;
+  --color-accent-2: #ac803e;
+  --color-divider: color-mix(in srgb, #201f1d 16%, transparent);
+
+  /* Rampes tonales — générées en OKLCH sur une même échelle de clarté, de sorte
+     que le même degré de deux rôles différents ait la même valeur visuelle. */
+  --color-neutral-100: #f8f4f4;
+  --color-neutral-200: #eae7e7;
+  --color-neutral-300: #d7d3d3;
+  --color-neutral-400: #bab6b6;
+  --color-neutral-500: #9b9797;
+  --color-neutral-600: #7d7979;
+  --color-neutral-700: #605d5d;
+  --color-neutral-800: #444141;
+  --color-neutral-900: #2d2b2b;
+
+  --color-accent-100: #fff3e4;
+  --color-accent-200: #ffe3bf;
+  --color-accent-300: #facb8d;
+  --color-accent-400: #e1ad66;
+  --color-accent-500: #c28d41;
+  --color-accent-600: #a06f24;
+  --color-accent-700: #7d5411;
+  --color-accent-800: #5a3b0a;
+  --color-accent-900: #3a270d;
+
+  --color-accent-2-100: #fff3e4;
+  --color-accent-2-200: #ffe3be;
+  --color-accent-2-300: #f5cd96;
+  --color-accent-2-400: #dbaf70;
+  --color-accent-2-500: #bc8f4e;
+  --color-accent-2-600: #9b7232;
+  --color-accent-2-700: #79561f;
+  --color-accent-2-800: #573d14;
+  --color-accent-2-900: #382810;
+
+  --font-heading: "Cormorant Garamond", system-ui, sans-serif;
+  --font-heading-weight: 600;
+  --font-body: "Lora", system-ui, sans-serif;
+
+  --space-1: 4.6px;
+  --space-2: 9.2px;
+  --space-3: 13.8px;
+  --space-4: 18.4px;
+  --space-6: 27.6px;
+  --space-8: 36.8px;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 7px;
+
+  /* Élévation — dérivée du sol : ombres douces teintées d'encre sur thème clair,
+     filet + obscurité ambiante sur thème sombre. */
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #2d2b2b 14%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #2d2b2b 16%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, #2d2b2b 22%, transparent);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+}
+
+.plate {
+  box-sizing: border-box;
+  border: 6px solid var(--color-surface);
+  outline: 1px solid var(--color-divider);
+  filter: sepia(22%) saturate(0.82) contrast(1.05);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Composants — construits sur les tokens ci-dessus. Du CSS simple sur du HTML
+   simple : ni JavaScript, ni étape de build. C'est aussi la raison pour
+   laquelle packages/ui consomme ces classes telles quelles plutôt que de les
+   réécrire — une seule source de vérité par composant.
+   ══════════════════════════════════════════════════════════════════════ */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+}
+
+h1 { font-size: 42px; }
+h2 { font-size: 32px; }
+h3 { font-size: 25px; }
+h4 { font-size: 20px; }
+h5 { font-size: 16px; }
+
+h6 {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+p { margin: 0 0 var(--space-3); }
+
+a {
+  color: var(--color-accent);
+  text-underline-offset: 3px;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+figure { margin: 0; }
+
+figcaption {
+  margin-top: var(--space-1);
+  color: color-mix(in srgb, var(--color-text) 55%, transparent);
+  font-size: 11px;
+}
+
+.text-muted { color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+
+:focus { outline: none; }
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); }
+
+/* — filets — */
+.hr {
+  height: 1px;
+  margin: var(--space-4) 0;
+  border: 0;
+  background: var(--color-divider);
+}
+
+/* — boutons — */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: var(--space-2) calc(var(--space-3) * 1.2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: var(--font-heading-weight);
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn svg { display: block; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn-primary {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.btn-primary:hover { background: color-mix(in srgb, var(--color-accent) 12%, transparent); }
+.btn-primary:active { background: color-mix(in srgb, var(--color-accent) 22%, transparent); }
+.btn-secondary { border-color: var(--color-divider); }
+.btn-secondary:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+.btn-secondary:active { background: color-mix(in srgb, var(--color-text) 14%, transparent); }
+
+.btn-ghost {
+  padding-inline: var(--space-1);
+  color: var(--color-accent);
+}
+
+.btn-ghost:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
+.btn-ghost:active { background: color-mix(in srgb, var(--color-accent) 18%, transparent); }
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+
+.btn-block {
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+/* — formulaires — */
+.field > label {
+  display: block;
+  margin-bottom: 5px;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+  font-size: 12px;
+}
+
+.input {
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 14px;
+  caret-color: var(--color-accent);
+}
+
+.input:hover { border-color: color-mix(in srgb, var(--color-text) 45%, transparent); }
+
+.input:focus-visible {
+  border-color: var(--color-accent);
+  outline-offset: 0;
+}
+
+textarea.input {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.radio input,
+.seg-opt input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.radio .dot {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--color-divider);
+  border-radius: 50%;
+}
+
+.radio:hover .dot { border-color: var(--color-accent); }
+
+.radio input:checked + .dot {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  box-shadow: inset 0 0 0 4px var(--color-bg);
+}
+
+.radio input:focus-visible + .dot {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.seg {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+}
+
+.seg-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.seg-opt + .seg-opt { border-left: 1px solid var(--color-divider); }
+
+.seg-opt:has(input:checked) {
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+  color: var(--color-accent);
+}
+
+.seg-opt:not(:has(input:checked)):hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+
+.seg-opt:has(input:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+/* — cartes — */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: transparent;
+}
+
+.card-kicker {
+  color: var(--color-accent);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.card-title {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: var(--font-heading-weight);
+  line-height: 1.2;
+}
+
+.card-body {
+  flex: 1;
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: color-mix(in srgb, var(--color-text) 50%, transparent);
+  font-size: 11px;
+}
+
+.elev-sm { box-shadow: var(--shadow-sm); }
+.elev-md { box-shadow: var(--shadow-md); }
+.elev-lg { box-shadow: var(--shadow-lg); }
+
+/* — étiquettes — */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: calc(var(--radius-md) * 0.75);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+.tag-accent {
+  background: var(--color-accent-100);
+  color: var(--color-accent-800);
+}
+
+.tag-accent-2 {
+  background: var(--color-accent-2-100);
+  color: var(--color-accent-2-800);
+}
+
+.tag-neutral {
+  background: var(--color-neutral-100);
+  color: var(--color-neutral-800);
+}
+
+.tag-outline {
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* — navigation — */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.nav-brand {
+  margin-right: auto;
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: var(--font-heading-weight);
+}
+
+.nav a {
+  color: inherit;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.nav a:hover,
+.nav a[aria-current='page'] { color: var(--color-accent); }
+
+/* — tableaux — */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-divider);
+  color: color-mix(in srgb, var(--color-text) 60%, transparent);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.table td {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.table tbody tr:hover { background: color-mix(in srgb, var(--color-text) 4%, transparent); }
+
+/* — dialogue — */
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: min(440px, 100%);
+  padding: var(--space-4);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+}
+
+.dialog-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: var(--font-heading-weight);
+}
+
+.dialog-body {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}

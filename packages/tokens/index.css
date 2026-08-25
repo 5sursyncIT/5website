@@ -1,0 +1,7 @@
+/* Point d'entrée unique. L'ordre compte, et il n'est pas négociable :
+   Classical pose le système, la couche site l'étend à l'échelle de la page,
+   la couche responsive redéfinit certains de ces tokens sous conditions.
+   Importer index.css, jamais les fichiers séparément. */
+@import "./classical.css";
+@import "./site.css";
+@import "./responsive.css";

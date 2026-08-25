@@ -1,0 +1,14 @@
+{
+  "name": "@5sync/tokens",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Tokens du design system, en deux couches : Classical (miroir) et site (extraction).",
+  "exports": {
+    ".": "./index.css",
+    "./classical.css": "./classical.css",
+    "./site.css": "./site.css",
+    "./index.css": "./index.css"
+  },
+  "files": ["classical.css", "site.css", "index.css"]
+}
