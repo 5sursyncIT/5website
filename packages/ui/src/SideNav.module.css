@@ -1,0 +1,45 @@
+.list {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  border-left: 2px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--site-muted);
+  font-size: var(--site-body-sm);
+  text-decoration: none;
+  transition: color var(--site-ease), background var(--site-ease);
+}
+
+.item:hover { background: var(--site-gold-wash); }
+
+.current {
+  border-left-color: var(--site-gold);
+  background: var(--site-gold-wash);
+  color: var(--site-ink);
+}
+
+.count {
+  color: var(--site-faint);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label);
+  font-variant-numeric: tabular-nums;
+}
+
+/* — sur sol sombre (back-office) — */
+.onGround .item { color: var(--site-on-ground-muted); }
+.onGround .item:hover { background: var(--site-gold-wash-onground); }
+
+.onGround .current {
+  background: var(--site-gold-wash-onground);
+  color: var(--site-on-ground);
+}

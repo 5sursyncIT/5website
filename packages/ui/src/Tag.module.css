@@ -1,0 +1,15 @@
+.status {
+  display: inline-block;
+  padding: 4px 9px;
+  border: 1px solid currentcolor;
+  border-radius: var(--radius-sm);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-xs);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.gold { color: var(--site-gold-deep); }
+.muted { color: var(--site-muted); }
+.onGround.gold { color: var(--site-gold-light); }
+.onGround.muted { color: var(--site-on-ground-muted); }

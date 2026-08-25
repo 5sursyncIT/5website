@@ -1,0 +1,57 @@
+/* Feuille globale de l'application.
+   Ordre imposé : les tokens d'abord, les rattrapages d'application ensuite.
+   Ce fichier est le SEUL endroit où l'application a le droit de redéfinir un
+   token — et uniquement pour brancher les polices auto-hébergées. */
+
+@import "@5sync/tokens/index.css";
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Branchement des polices.
+   next/font génère des noms de familles hachés, exposés via des variables CSS.
+   On les injecte dans les tokens de familles plutôt que d'éditer le miroir
+   Classical, qui doit rester une copie conforme.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  --font-heading: var(--font-cormorant), georgia, "Times New Roman", serif;
+  --font-body: var(--font-lora), georgia, "Times New Roman", serif;
+  --site-font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", menlo, monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-size: var(--site-body);
+  line-height: var(--site-leading-body);
+  text-rendering: optimizelegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Cible de saut au contenu — exigée par les marchés publics soumis au RGAA. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 999;
+  padding: 10px 16px;
+  border: 1px solid var(--site-gold);
+  background: var(--color-bg);
+  color: var(--site-gold-deep);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label);
+}
+
+.skip-link:focus {
+  left: var(--site-inset);
+  top: 10px;
+}

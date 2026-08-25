@@ -1,0 +1,166 @@
+.frame {
+  overflow: hidden;
+  border: 1px solid var(--site-rule);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+/* Bandeau de tête. Il énonce l'ordre des champs, il ne titre pas des colonnes :
+   il n'y a plus de colonnes. D'où aria-hidden côté composant — un lecteur
+   d'écran n'a rien à faire de « RÉFÉRENCE · OBJET · SITE · NIVEAU » quand
+   chaque fiche est déjà auto-descriptive. */
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--site-rule);
+  background: var(--color-surface);
+  color: var(--site-muted);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-xs);
+  letter-spacing: var(--site-tracking-label);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Grille nommée : le DOM reste en ordre de lecture, la mise en page bouge. */
+.row {
+  --row-pad: 15px;
+
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  grid-template-areas:
+    "reference objet     figure statut"
+    "attributs attributs figure statut";
+  gap: 5px 12px;
+  align-items: baseline;
+  padding: var(--row-pad) 22px;
+  border-bottom: 1px solid var(--site-rule-softer);
+  color: inherit;
+  text-decoration: none;
+  transition: background var(--site-ease);
+}
+
+.list li:last-child .row { border-bottom: 0; }
+.row:hover { background: var(--site-gold-wash-hover); }
+
+.confort { --row-pad: 15px; }
+.compact { --row-pad: 11px; }
+
+.reference {
+  grid-area: reference;
+  color: var(--site-faint);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Le champ que l'agent lit. Il prend la mesure et passe à la ligne — c'est
+   toute la différence avec la cellule qu'il remplace. */
+.objet {
+  grid-area: objet;
+  font-family: var(--site-font-display);
+  font-size: var(--site-fiche-titre);
+  font-weight: var(--font-heading-weight);
+  line-height: 1.3;
+  text-wrap: pretty;
+}
+
+.attributs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  grid-area: attributs;
+}
+
+.attribut {
+  color: var(--site-soft);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-sm);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+.figure {
+  grid-area: figure;
+  align-self: baseline;
+  margin-left: 12px;
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-sm);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.statut {
+  grid-area: statut;
+  align-self: start;
+  margin-left: 12px;
+  padding: 4px 9px;
+  border: 1px solid currentcolor;
+  border-radius: var(--radius-sm);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-xs);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.gold { color: var(--site-gold-deep); }
+.muted { color: var(--site-muted); }
+
+/* ── 390 px — la pastille remonte sur la ligne de référence ──────────────── */
+@media (max-width: 480px) {
+  .row {
+    --row-pad: 14px;
+
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "reference statut"
+      "objet     objet"
+      "attributs figure";
+    row-gap: 4px;
+    padding: var(--row-pad) 16px;
+  }
+
+  .compact { --row-pad: 11px; }
+  .figure { justify-self: end; }
+
+  .statut {
+    justify-self: end;
+    margin-left: 0;
+    padding: 3px 7px;
+  }
+
+  .head { padding: 10px 16px; }
+}
+
+/* ── sur sol sombre (back-office sous 1280 px) ───────────────────────────── */
+.onGround {
+  border-color: var(--site-rule-onground-gold);
+  background: var(--site-ground);
+  color: var(--site-on-ground);
+}
+
+.onGround .head {
+  border-bottom-color: var(--site-onground-thead-rule);
+  background: var(--site-onground-thead-bg);
+  color: var(--site-onground-thead-label);
+}
+
+.onGround .row { border-bottom-color: var(--site-rule-onground); }
+
+.onGround .row:hover {
+  background: var(--site-onground-hover-bg);
+  color: var(--site-onground-hover-text);
+}
+
+.onGround .reference,
+.onGround .attribut { color: var(--site-on-ground-muted); }
+.onGround .gold { color: var(--site-gold-light); }
+.onGround .muted { color: var(--site-on-ground-muted); }

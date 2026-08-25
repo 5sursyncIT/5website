@@ -1,0 +1,25 @@
+.kicker { margin-bottom: 18px; }
+
+.title {
+  margin: 0;
+  font-family: var(--site-font-display);
+  font-weight: 400;
+  line-height: var(--site-leading-title);
+  letter-spacing: var(--site-tracking-title);
+  text-wrap: balance;
+}
+
+.hero {
+  font-size: var(--site-display-hero);
+  line-height: var(--site-leading-display);
+  letter-spacing: var(--site-tracking-display);
+}
+
+.page {
+  font-size: var(--site-display-page);
+  letter-spacing: var(--site-tracking-display);
+}
+
+.section { font-size: var(--site-title-section); }
+.inner { font-size: var(--site-title-page); }
+.app { font-size: var(--site-title-app); }

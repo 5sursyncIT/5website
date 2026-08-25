@@ -1,0 +1,201 @@
+.page {
+  max-width: var(--site-shell);
+  margin: 0 auto;
+  padding: 0 var(--site-inset) var(--site-section);
+}
+
+.masthead {
+  padding: 64px 0 30px;
+  border-bottom: 1px solid var(--site-rule);
+}
+
+.title {
+  margin: 16px 0 12px;
+  font-family: var(--site-font-display);
+  font-size: var(--site-title-page);
+  font-weight: 400;
+  line-height: var(--site-leading-title);
+  letter-spacing: var(--site-tracking-title);
+}
+
+.intro {
+  max-width: var(--site-measure);
+  margin: 0;
+  color: var(--site-muted);
+  font-size: var(--site-body-lg);
+  line-height: var(--site-leading-prose);
+}
+
+.section {
+  padding: var(--site-gutter-md) 0;
+  border-bottom: 1px solid var(--site-rule);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--site-font-display);
+  font-size: var(--site-title-md);
+  font-weight: 600;
+}
+
+.sectionNote {
+  max-width: var(--site-measure-560);
+  margin: 0 0 24px;
+  color: var(--site-soft);
+  font-size: var(--site-note);
+  line-height: var(--site-leading-body);
+}
+
+/* Bancs d'essai : un fond neutre pour les composants clairs, le sol sombre
+   pour ceux du back-office. */
+.bench {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 26px;
+  border: 1px solid var(--site-rule);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.benchDark {
+  background: var(--site-ground);
+  border-color: var(--site-rule-onground-gold);
+  color: var(--site-on-ground);
+}
+
+.benchStack {
+  display: block;
+  align-items: stretch;
+}
+
+.benchGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.caption {
+  margin: 10px 0 0;
+  color: var(--site-faint);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-xs);
+  letter-spacing: var(--site-tracking-label);
+  text-transform: uppercase;
+}
+
+/* — nuancier — */
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 10px;
+}
+
+.swatch {
+  padding: 0;
+  border: 1px solid var(--site-rule);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.chip { height: 54px; }
+
+.swatchLabel {
+  padding: 8px 9px 9px;
+  background: var(--color-bg);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-xs);
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+
+.swatchValue {
+  display: block;
+  color: var(--site-faint);
+}
+
+/* — échelle typographique — */
+.scale {
+  display: grid;
+  gap: 2px;
+}
+
+.scaleRow {
+  display: grid;
+  grid-template-columns: 190px 74px 1fr;
+  gap: 20px;
+  align-items: baseline;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--site-rule-softer);
+}
+
+.scaleToken {
+  color: var(--site-gold-deep);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label);
+}
+
+.scaleValue {
+  color: var(--site-faint);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label);
+  font-variant-numeric: tabular-nums;
+}
+
+.scaleSample {
+  overflow: hidden;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* — rail latéral d'essai — */
+.railBench {
+  display: grid;
+  grid-template-columns: var(--site-rail-client) 1fr;
+  gap: 0;
+  border: 1px solid var(--site-rule);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.railPane {
+  padding: 24px 22px;
+  border-right: 1px solid var(--site-rule);
+  background: var(--color-bg);
+}
+
+.railPaneDark {
+  border-right-color: var(--site-rule-onground-gold);
+  background: var(--site-ground);
+}
+
+.railBody {
+  padding: 24px;
+  background: var(--color-surface);
+}
+
+.railBodyDark { background: var(--site-ground); }
+
+@media (max-width: 880px) {
+  .pair,
+  .railBench { grid-template-columns: 1fr; }
+
+  .railPane { border-right: 0; border-bottom: 1px solid var(--site-rule); }
+  .scaleRow { grid-template-columns: 1fr; gap: 4px; }
+}

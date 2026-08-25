@@ -1,0 +1,38 @@
+/* Gabarits de taille relevés dans la maquette. Classical fixe .btn à
+   14 px / var(--space-2) — soit exactement la taille sm ci-dessous. */
+
+.btn {
+  transition: border-color var(--site-ease), background var(--site-ease);
+  white-space: nowrap;
+}
+
+.sm {
+  padding: 9px 16px;
+  font-size: var(--site-body-sm);
+}
+
+.md {
+  padding: 11px 20px;
+  font-size: var(--site-body);
+}
+
+.lg {
+  padding: 13px 26px;
+  font-size: var(--site-ui-strong);
+}
+
+/* Sur sol sombre, l'or passe au degré 400 pour tenir le contraste, et le
+   bouton secondaire s'appuie sur un filet clair plutôt que sur l'encre. */
+.onGround:global(.btn-primary) {
+  border-color: var(--site-gold-light);
+  color: var(--site-gold-light);
+}
+
+.onGround:global(.btn-primary):hover { background: var(--site-gold-wash-onground); }
+
+.onGround:global(.btn-secondary) {
+  border-color: var(--site-on-ground-28);
+  color: var(--site-on-ground-strong);
+}
+
+.onGround:global(.btn-secondary):hover { background: var(--site-on-ground-08); }

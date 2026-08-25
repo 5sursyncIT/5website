@@ -1,0 +1,14 @@
+{
+  "name": "@5sync/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Composants du design system 5/Sync IT, construits sur @5sync/tokens.",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  }
+}

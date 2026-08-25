@@ -1,0 +1,9 @@
+.field :global(.input) { font-family: var(--site-font-body); }
+
+.label {
+  color: var(--site-soft);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-xs);
+  letter-spacing: var(--site-tracking-label);
+  text-transform: uppercase;
+}

@@ -1,0 +1,22 @@
+.kicker {
+  color: var(--site-gold);
+  font-family: var(--site-font-mono);
+  text-transform: uppercase;
+}
+
+.lg {
+  font-size: var(--site-label);
+  letter-spacing: var(--site-tracking-kicker);
+}
+
+.md {
+  font-size: var(--site-label);
+  letter-spacing: var(--site-tracking-label);
+}
+
+.sm {
+  font-size: var(--site-label-xs);
+  letter-spacing: 0.14em;
+}
+
+.onGround { color: var(--site-gold-mid); }
