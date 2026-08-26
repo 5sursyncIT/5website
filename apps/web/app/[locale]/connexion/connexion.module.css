@@ -1,0 +1,55 @@
+.page {
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - var(--site-header-h) - 200px);
+  padding: var(--site-section-sm) var(--site-inset);
+  background: var(--color-surface);
+}
+
+.carte {
+  width: min(440px, 100%);
+  padding: 38px 34px 34px;
+  border: 1px solid var(--site-rule);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.titre {
+  margin: 16px 0 10px;
+  font-family: var(--site-font-display);
+  font-size: var(--site-title-app);
+  font-weight: 400;
+  letter-spacing: var(--site-tracking-title);
+}
+
+.chapo {
+  margin: 0 0 30px;
+  color: var(--site-muted);
+  font-size: var(--site-body-card);
+  line-height: 1.65;
+}
+
+.formulaire {
+  display: grid;
+  gap: 18px;
+}
+
+.envoyer { width: 100%; }
+
+.erreur {
+  margin: 0;
+  padding: 12px 16px;
+  border-left: 2px solid var(--site-gold);
+  background: var(--site-gold-wash);
+  color: var(--site-gold-deep);
+  font-size: var(--site-note);
+}
+
+.aide {
+  margin: 26px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--site-rule-softer);
+  color: var(--site-soft);
+  font-size: var(--site-note-sm);
+  line-height: 1.6;
+}

@@ -1,0 +1,154 @@
+.portail {
+  display: grid;
+  grid-template-columns: var(--site-rail-client) 1fr;
+  min-height: calc(100vh - var(--site-header-h));
+  background: var(--color-surface);
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  padding: 30px 22px;
+  border-right: 1px solid var(--site-rule);
+  background: var(--color-bg);
+}
+
+.identite { margin-bottom: 24px; }
+
+.client {
+  margin: 10px 0 4px;
+  font-family: var(--site-font-display);
+  font-size: var(--site-ui-title-lg);
+  font-weight: var(--font-heading-weight);
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.compte {
+  margin: 0;
+  color: var(--site-soft);
+  font-size: var(--site-note-sm);
+}
+
+.rail nav {
+  padding-top: 16px;
+  border-top: 1px solid var(--site-rule);
+}
+
+.pied {
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid var(--site-rule);
+}
+
+.interlocuteur {
+  margin: 10px 0 3px;
+  font-size: var(--site-body-sm);
+}
+
+.courriel {
+  color: var(--site-soft);
+  font-size: var(--site-note-sm);
+  text-decoration: none;
+}
+
+.courriel:hover { color: var(--site-gold-deep); }
+
+.deconnexion { margin-top: 20px; }
+
+.boutonDeconnexion {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--site-muted);
+  font: inherit;
+  font-size: var(--site-note-sm);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.boutonDeconnexion:hover { color: var(--site-gold-deep); }
+
+.retour {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--site-faint);
+  font-size: var(--site-note-sm);
+  text-decoration: none;
+}
+
+.contenu {
+  min-width: 0;
+  padding: var(--site-app-inset-y) var(--site-app-inset-x) 60px;
+}
+
+/* ── Sous 1024 px : le rail devient un bandeau d'onglets défilants ────────
+   Décision de Claude Design, qui écarte le tiroir — « l'onglet courant doit
+   rester visible ». Purement CSS : aucun script n'est nécessaire pour que le
+   portail reste utilisable. */
+@media (max-width: 1024px) {
+  .portail { grid-template-columns: 1fr; }
+
+  .rail {
+    padding: 22px var(--site-app-inset-x) 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--site-rule);
+  }
+
+  .identite {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 16px;
+  }
+
+  .client { font-size: var(--site-ui-title-md); margin-top: 4px; }
+
+  .rail nav {
+    padding-top: 0;
+    border-top: 0;
+    margin-inline: calc(var(--site-app-inset-x) * -1);
+    padding-inline: var(--site-app-inset-x);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .rail nav::-webkit-scrollbar { display: none; }
+
+  .rail nav ul {
+    display: flex;
+    gap: 22px;
+  }
+
+  .rail nav li { flex: none; }
+
+  /* En bandeau, l'entrée active se signale par un filet SOUS elle et non à sa
+     gauche : un filet gauche sur une rangée horizontale ne désigne rien. */
+  .rail nav a {
+    padding: 0 0 10px;
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    white-space: nowrap;
+  }
+
+  .rail nav a:hover { background: none; }
+
+  .rail nav a[aria-current='page'] {
+    border-bottom-color: var(--site-gold);
+    background: none;
+  }
+
+  /* Le pied du rail remonterait au-dessus du contenu : il passe en fin de
+     page, où il ne coupe pas la lecture. */
+  .pied {
+    order: 99;
+    margin-top: 0;
+    padding: 18px 0 20px;
+  }
+
+  .deconnexion { display: inline-block; margin: 0 0 0 20px; }
+  .retour { margin: 0 0 0 20px; }
+}

@@ -5,6 +5,11 @@ import sessionPlugin from './plugins/session.js';
 import routesAuth from './routes/v1/auth.js';
 import routesTickets from './routes/v1/tickets.js';
 import routesLeads from './routes/v1/leads.js';
+import routesModules from './routes/v1/modules.js';
+import routesOrganisations from './routes/v1/organisations.js';
+import routesDocumentsFichiers from './routes/v1/documents-fichiers.js';
+import routesTicketsEcriture from './routes/v1/tickets-ecriture.js';
+import multipart from '@fastify/multipart';
 
 /**
  * Construit l'instance Fastify sans l'écouter — c'est ce qui permettra aux
@@ -22,7 +27,12 @@ export function buildApp({ logger = true } = {}) {
   app.register(sessionPlugin);
   app.register(routesAuth);
   app.register(routesTickets);
+  app.register(multipart);
   app.register(routesLeads);
+  app.register(routesModules);
+  app.register(routesOrganisations);
+  app.register(routesDocumentsFichiers);
+  app.register(routesTicketsEcriture);
 
   /**
    * Sonde de santé.

@@ -39,6 +39,17 @@ services:
       NODE_ENV: production
       API_PORT: 4000
       DATABASE_URL: ${DATABASE_URL}
+      DOCUMENTS_DIR: /srv/documents
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      MAIL_DESACTIVE: ${MAIL_DESACTIVE:-0}
+    volumes:
+      # Les documents survivent au conteneur : les perdre serait perdre des
+      # livrables validés contradictoirement.
+      - documents:/srv/documents
     depends_on:
       postgres:
         condition: service_healthy
@@ -63,3 +74,4 @@ services:
 
 volumes:
   pgdata:
+  documents:

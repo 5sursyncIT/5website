@@ -55,6 +55,11 @@ const VUES = [
   { name: 'solutions', path: '/fr/solutions' },
   { name: 'a-propos', path: '/fr/a-propos' },
   { name: 'contact', path: '/fr/contact' },
+  { name: 'connexion', path: '/fr/connexion' },
+  // L'espace client demande une session : le capturer suppose d'ajouter
+  // PostgreSQL et l'API au job visuel, et d'y ouvrir une session. Prévu, non
+  // fait — la couverture s'arrête donc aux pages publiques, et c'est écrit
+  // plutôt que sous-entendu.
   { name: 'atelier', path: '/atelier' },
 ];
 
