@@ -3,8 +3,9 @@
 Site institutionnel, espace client et back-office — construits d'après la
 maquette Claude Design « Refonte site 5sursync », en JavaScript de bout en bout.
 
-**Lots 0 et 2 livrés** — fondations, puis socle de données et accès.
-Le site public (lot 1) attend des artboards ; voir `docs/`.
+**Lots 0, 1, 2, 3 et 5 livrés** — fondations, vitrine, socle de données et
+accès, espace client, durcissement. Du **lot 4** — le back-office — seule la
+couche HTTP est livrée : les écrans attendent des artboards. Voir `docs/`.
 
 ## Démarrer
 

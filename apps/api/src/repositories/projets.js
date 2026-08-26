@@ -89,3 +89,32 @@ export async function indicateurs(client) {
     avancementMoyenPct: Number(r.avancement_moyen_pct),
   };
 }
+
+/**
+ * Crée un projet et ses jalons dans le même mouvement.
+ *
+ * LES JALONS NE SONT PAS UN DÉTAIL QU'ON AJOUTERA APRÈS. L'avancement est
+ * pondéré par leur poids : un projet créé sans jalon affiche 0 % et pèse zéro
+ * dans la moyenne du portefeuille. Les accepter à la création — dans la même
+ * transaction, donc tout ou rien — évite l'état intermédiaire où un projet
+ * existe sans que personne ne sache ce qu'il contient.
+ */
+export async function creer(client, { organisationId, nom, phase = 'cadrage', statut = 'cadrage', echeance = null, jalons: lignes = [] }) {
+  const { rows } = await client.query(
+    `insert into projets (organisation_id, nom, phase, statut, echeance)
+     values ($1,$2,$3,$4,$5)
+     returning id, nom, phase, statut, echeance, cree_le`,
+    [organisationId, nom, phase, statut, echeance],
+  );
+  const projet = rows[0];
+
+  for (const [rang, jalon] of lignes.entries()) {
+    await client.query(
+      `insert into jalons (organisation_id, projet_id, libelle, echeance, poids, rang)
+       values ($1,$2,$3,$4,$5,$6)`,
+      [organisationId, projet.id, jalon.libelle, jalon.echeance ?? null, jalon.poids ?? 1, rang],
+    );
+  }
+
+  return { ...projet, jalons: lignes.length };
+}

@@ -55,6 +55,19 @@ const CAPACITES = {
   'tickets:lire': ['admin', 'staff', 'client_admin', 'client_user'],
   'tickets:ouvrir': ['admin', 'staff', 'client_admin', 'client_user'],
   'tickets:administrer': ['admin', 'staff'],
+  'projets:ecrire': ['admin', 'staff'],
+  // Un contrat est un engagement commercial : le créer ou le modifier reste
+  // à « admin ». Y imputer des heures est au contraire le geste quotidien
+  // d'un intervenant qui clôt une intervention — d'où deux capacités, et non
+  // une seule qui obligerait à choisir entre bloquer le staff et lui ouvrir
+  // la rédaction des contrats.
+  'contrats:ecrire': ['admin'],
+  'contrats:imputer': ['admin', 'staff'],
+  // Les interventions sont, à ce jour, une notion de back-office : rien n'est
+  // dessiné côté client. Le jour où Claude Design livre une vue client, il
+  // suffira d'ouvrir « interventions:lire » aux rôles client_*.
+  'interventions:lire': ['admin', 'staff'],
+  'interventions:ecrire': ['admin', 'staff'],
   'documents:lire': ['admin', 'staff', 'client_admin', 'client_user'],
   'documents:deposer': ['admin', 'staff'],
   'finances:lire': ['admin', 'staff', 'client_admin'],

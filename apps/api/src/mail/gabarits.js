@@ -57,6 +57,30 @@ export function depotDocument({ document, version }) {
   return { sujet: `${site.nom} — nouveau document disponible`, ...envelopper(titre, corps) };
 }
 
+/**
+ * Réponse d'un intervenant sur un ticket.
+ *
+ * LE CORPS DE LA RÉPONSE N'EST PAS REPRIS DANS LE MESSAGE, DÉLIBÉRÉMENT.
+ * Un échange de support porte régulièrement une adresse d'équipement, un port
+ * ouvert, une procédure de contournement — des choses qui ont leur place
+ * derrière une session authentifiée, pas recopiées dans une boîte aux lettres
+ * qui sera relevée en clair, transférée et archivée sans notre contrôle. La
+ * notification dit qu'il y a du nouveau ; l'espace client dit quoi.
+ */
+export function reponseTicket({ ticket }) {
+  const titre = 'Nouvelle réponse sur votre demande';
+  const corps = {
+    texte:
+      `Référence : ${ticket.reference}\n\n` +
+      'Un intervenant 5/Sync a répondu à votre demande. ' +
+      'La réponse est consultable depuis votre espace client.',
+    html:
+      `<p style="margin:0 0 18px;font-size:15px;line-height:1.6">Un intervenant ${site.nom} a répondu à votre demande <strong>${escaper(ticket.reference)}</strong>.</p>` +
+      `<p style="margin:0;font-size:14px;line-height:1.6;color:#605d5d">La réponse est consultable depuis votre espace client.</p>`,
+  };
+  return { sujet: `${site.nom} — réponse sur ${ticket.reference}`, ...envelopper(titre, corps) };
+}
+
 /** Les noms de documents et les objets de tickets sont saisis par des humains. */
 function escaper(texte) {
   return String(texte)

@@ -12,3 +12,5 @@ export * as documents from './documents.js';
 export * as parc from './parc.js';
 export * as finances from './finances.js';
 export * as organisations from './organisations.js';
+export * as interventions from './interventions.js';
+export * as audit from './audit.js';

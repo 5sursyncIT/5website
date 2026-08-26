@@ -64,3 +64,36 @@ export async function notifierDepotDocument({ document, version }) {
     html: message.html,
   });
 }
+
+/**
+ * Prévient les comptes d'une organisation qu'un intervenant a répondu.
+ *
+ * Les notes internes n'appellent jamais cette fonction : la route ne
+ * l'invoque que pour un message public. C'est le contrôle qui compte ici —
+ * une note interne notifiée serait une note interne divulguée, et le libellé
+ * du message ne suffirait pas à rattraper l'erreur.
+ */
+export async function notifierReponseTicket({ ticket }) {
+  const destinataires = await withoutTenant(async (client) =>
+    (
+      await client.query(
+        `select email from users
+          where organisation_id = $1 and actif and email is not null
+            and role in ('client_admin', 'client_user')`,
+        [ticket.organisation_id],
+      )
+    ).rows.map((r) => r.email),
+  );
+
+  if (destinataires.length === 0 || DESACTIVE) return null;
+
+  const message = gabarits.reponseTicket({ ticket });
+  return obtenirTransport().sendMail({
+    from: site.expediteur,
+    to: site.expediteur,
+    bcc: destinataires,
+    subject: message.sujet,
+    text: message.texte,
+    html: message.html,
+  });
+}

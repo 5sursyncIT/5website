@@ -10,6 +10,9 @@ import routesModules from './routes/v1/modules.js';
 import routesOrganisations from './routes/v1/organisations.js';
 import routesDocumentsFichiers from './routes/v1/documents-fichiers.js';
 import routesTicketsEcriture from './routes/v1/tickets-ecriture.js';
+import routesTicketsAdministration from './routes/v1/tickets-administration.js';
+import routesBackOffice from './routes/v1/back-office.js';
+import routesAudit from './routes/v1/audit.js';
 import multipart from '@fastify/multipart';
 
 /**
@@ -35,6 +38,9 @@ export function buildApp({ logger = true } = {}) {
   app.register(routesOrganisations);
   app.register(routesDocumentsFichiers);
   app.register(routesTicketsEcriture);
+  app.register(routesTicketsAdministration);
+  app.register(routesBackOffice);
+  app.register(routesAudit);
 
   /**
    * Sonde de santé.

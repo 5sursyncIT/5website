@@ -96,3 +96,47 @@ export async function marquerReglee(client, { id, regleeLe = null }) {
   );
   return rows[0] ?? null;
 }
+
+/**
+ * Crée une pièce et ses lignes.
+ *
+ * LE MONTANT DE LA PIÈCE EST CALCULÉ À PARTIR DES LIGNES, JAMAIS REÇU DE
+ * L'APPELANT quand il y a des lignes. Deux sources pour un même total finissent
+ * par diverger, et le jour où elles divergent c'est sur une facture — donc
+ * devant un client. Une pièce sans ligne accepte en revanche un montant direct :
+ * un forfait négocié n'a pas de détail à ventiler.
+ *
+ * L'arrondi se fait sur le total de chaque ligne et non sur la somme : c'est
+ * la ligne qui est imprimée sur la facture, et un total qui ne se retrouve pas
+ * en additionnant ce qui est imprimé est un litige.
+ */
+export async function creer(
+  client,
+  { organisationId, reference, type, objet, montantFcfa = null, echeance = null,
+    projetId = null, statut = 'brouillon', lignes: detail = [] },
+) {
+  const montant =
+    detail.length > 0
+      ? detail.reduce((somme, l) => somme + Math.round(Number(l.quantite ?? 1) * Number(l.prixUnitaireFcfa)), 0)
+      : Number(montantFcfa ?? 0);
+
+  const { rows } = await client.query(
+    `insert into pieces
+       (organisation_id, reference, type, objet, montant_fcfa, echeance, projet_id, statut)
+     values ($1,$2,$3,$4,$5,$6,$7,$8)
+     returning id, reference, type, objet, montant_fcfa, echeance, statut, cree_le`,
+    [organisationId, reference, type, objet, montant, echeance, projetId, statut],
+  );
+  const piece = rows[0];
+
+  for (const [rang, ligne] of detail.entries()) {
+    await client.query(
+      `insert into piece_lignes
+         (organisation_id, piece_id, libelle, quantite, prix_unitaire_fcfa, rang)
+       values ($1,$2,$3,$4,$5,$6)`,
+      [organisationId, piece.id, ligne.libelle, ligne.quantite ?? 1, ligne.prixUnitaireFcfa, rang],
+    );
+  }
+
+  return { ...piece, lignes: detail.length };
+}

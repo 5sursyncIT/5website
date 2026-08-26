@@ -100,3 +100,29 @@ export async function consommer(client, { organisationId, contratId, minutes, mo
   );
   return rows[0];
 }
+
+/**
+ * Crée un contrat.
+ *
+ * GTI et GTR sont facultatives ici : tout contrat ne porte pas d'engagement de
+ * délai. Mais un contrat sans GTR ne peut pas être dépassé, donc ses tickets
+ * ne comptent pas dans le respect des SLA — c'est exact, et c'est la raison
+ * pour laquelle l'indicateur renvoie son assiette au lieu d'un simple
+ * pourcentage.
+ */
+export async function creer(
+  client,
+  { organisationId, reference, intitule, perimetre = null, gtiHeures = null,
+    gtrHeures = null, forfaitHeures = null, echeance = null },
+) {
+  const { rows } = await client.query(
+    `insert into contrats
+       (organisation_id, reference, intitule, perimetre, gti_heures, gtr_heures,
+        forfait_heures, echeance)
+     values ($1,$2,$3,$4,$5,$6,$7,$8)
+     returning id, reference, intitule, gti_heures, gtr_heures, forfait_heures,
+               echeance, statut, cree_le`,
+    [organisationId, reference, intitule, perimetre, gtiHeures, gtrHeures, forfaitHeures, echeance],
+  );
+  return rows[0];
+}
