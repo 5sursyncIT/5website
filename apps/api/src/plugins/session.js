@@ -69,6 +69,30 @@ async function sessionPlugin(app) {
     return withTenant(contexte, fn);
   });
 
+  /**
+   * Un identifiant de route mal formé n'atteint pas PostgreSQL.
+   *
+   * Sans ce contrôle, « /api/v1/tickets/pas-un-uuid » descend jusqu'à la
+   * base, qui refuse la conversion et fait remonter une erreur 500 : le refus
+   * arrive bien, mais il se présente comme une panne du service alors que
+   * c'est une URL invalide — et il réveille quelqu'un la nuit pour rien.
+   *
+   * La réponse est 404 et non 400 : un identifiant qui n'a pas la forme d'un
+   * identifiant ne peut désigner aucune ressource, et c'est exactement la
+   * même réponse que pour une ressource hors périmètre. Deux réponses
+   * différentes ici apprendraient à distinguer « mal formé » de « pas à
+   * vous », ce qui est déjà une information.
+   */
+  const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  app.addHook('preHandler', async (request, reply) => {
+    for (const [nom, valeur] of Object.entries(request.params ?? {})) {
+      if ((nom === 'id' || nom.endsWith('Id')) && !UUID.test(String(valeur))) {
+        return reply.code(404).send({ error: 'not_found', path: request.url });
+      }
+    }
+  });
+
   app.setErrorHandler((erreur, request, reply) => {
     const status = erreur.statusCode ?? 500;
 
