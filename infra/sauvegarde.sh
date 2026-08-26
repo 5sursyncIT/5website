@@ -17,10 +17,13 @@
 # restauration qui aboutit avec zéro organisation est un échec silencieux.
 #
 # CHIFFREMENT
-# age est préféré, gpg ensuite : tous deux authentifient, donc une altération
-# se voit au déchiffrement. À défaut, openssl enc est employé — il chiffre mais
-# n'authentifie pas, d'où l'empreinte du manifeste qui joue ce rôle. Ce repli
-# est signalé bruyamment : ce n'est pas ce qu'on veut en production.
+# age, avec une CLÉ PUBLIQUE (SAUVEGARDE_DESTINATAIRE). La machine qui
+# sauvegarde n'a donc jamais besoin du secret qui déchiffre : la compromettre
+# ne donne pas accès aux sauvegardes passées.
+#
+# gpg ensuite, openssl enc en dernier recours — ce dernier chiffre sans
+# authentifier, et n'est plus toléré qu'hors production. Voir lib-sauvegarde.sh
+# pour le détail de l'arbitrage.
 # ═══════════════════════════════════════════════════════════════════════════
 set -euo pipefail
 
@@ -45,10 +48,13 @@ UTILISATEUR="${POSTGRES_USER:-$(depuis_url utilisateur || echo 5sync)}"
 BASE="${POSTGRES_DB:-$(depuis_url base || echo 5sync)}"
 HORODATAGE="$(date -u +%Y%m%dT%H%M%SZ)"
 
-DOCKER=docker
-docker info >/dev/null 2>&1 || DOCKER="sudo docker"
+# shellcheck source=infra/lib-sauvegarde.sh
+source "$RACINE/infra/lib-sauvegarde.sh"
 
-: "${SAUVEGARDE_CLE:?SAUVEGARDE_CLE non définie — la sauvegarde doit être chiffrée.}"
+# Aucune exigence de secret ici : chiffrer avec age ne demande que la clé
+# publique. C'est chiffrer(), dans la bibliothèque, qui refuse s'il ne trouve
+# de quoi produire un fichier authentifié — et qui dit lequel des deux
+# réglages manque.
 
 mkdir -p "$DESTINATION"
 BRUT="$DESTINATION/$HORODATAGE.dump"
@@ -80,29 +86,31 @@ if [ "$ORGS" -eq 0 ] && [ "$MIGRATIONS" -eq 0 ]; then
 fi
 
 echo "Chiffrement…"
-if command -v age >/dev/null; then
-  METHODE=age
-  age --passphrase --output "$CHIFFRE" "$BRUT" <<<"$SAUVEGARDE_CLE"
-elif command -v gpg >/dev/null; then
-  METHODE=gpg
-  gpg --batch --yes --symmetric --cipher-algo AES256 \
-      --passphrase "$SAUVEGARDE_CLE" --output "$CHIFFRE" "$BRUT"
-else
-  METHODE=openssl
-  echo "  ATTENTION : ni age ni gpg. openssl enc chiffre mais n'authentifie pas ;" >&2
-  echo "  l'intégrité repose sur l'empreinte du manifeste. À corriger avant la" >&2
-  echo "  mise en production." >&2
-  openssl enc -aes-256-cbc -pbkdf2 -iter 600000 -salt \
-    -pass pass:"$SAUVEGARDE_CLE" -in "$BRUT" -out "$CHIFFRE"
+# Le vidage en clair est effacé quoi qu'il arrive : un refus de chiffrer ne
+# doit pas laisser la base entière lisible dans le répertoire de sauvegarde.
+if ! METHODE="$(chiffrer "$BRUT" "$CHIFFRE")"; then
+  rm -f "$BRUT" "$CHIFFRE"
+  exit 1
 fi
 
 rm -f "$BRUT"
+
+# Empreinte du fichier CHIFFRÉ, en plus de celle du clair.
+#
+# Elles ne répondent pas à la même question. Celle du clair dit « ce qui sort
+# du déchiffrement est bien ce qui a été sauvegardé ». Celle du chiffré dit
+# « la copie posée hors site est bien celle qui est partie d'ici » — et elle
+# se vérifie sans la clé, donc depuis n'importe où, y compris par le script de
+# dépôt hors site qui n'a aucune raison de pouvoir déchiffrer.
+EMPREINTE_CHIFFRE="$(sha256sum "$CHIFFRE" | cut -d' ' -f1)"
 
 cat > "$MANIFESTE" <<MANIFESTE_FIN
 horodatage=$HORODATAGE
 base=$BASE
 methode=$METHODE
+destinataire=${SAUVEGARDE_DESTINATAIRE:-}
 empreinte_sha256=$EMPREINTE
+empreinte_chiffre_sha256=$EMPREINTE_CHIFFRE
 taille_octets=$TAILLE
 organisations=$ORGS
 users=$USERS

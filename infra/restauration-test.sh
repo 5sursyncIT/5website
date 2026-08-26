@@ -33,10 +33,8 @@ CONTENEUR="5sync-restauration-test"
 PORT="${PORT_TEST:-55433}"
 IMAGE="${POSTGRES_IMAGE:-postgres:16-alpine}"
 
-DOCKER=docker
-docker info >/dev/null 2>&1 || DOCKER="sudo docker"
-
-: "${SAUVEGARDE_CLE:?SAUVEGARDE_CLE non définie.}"
+# shellcheck source=infra/lib-sauvegarde.sh
+source "$RACINE/infra/lib-sauvegarde.sh"
 
 [ -e "$SOURCE/dernier.enc" ] || { echo "Aucune sauvegarde dans $SOURCE." >&2; exit 1; }
 
@@ -59,12 +57,7 @@ trap nettoyer EXIT
 # ── 1. Déchiffrement et intégrité ────────────────────────────────────────
 echo "[1/5] Déchiffrement…"
 CLAIR="$TRAVAIL/restauration.dump"
-case "$methode" in
-  age)     age --decrypt --output "$CLAIR" "$CHIFFRE" <<<"$SAUVEGARDE_CLE" ;;
-  gpg)     gpg --batch --yes --quiet --passphrase "$SAUVEGARDE_CLE" --output "$CLAIR" --decrypt "$CHIFFRE" ;;
-  openssl) openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 -pass pass:"$SAUVEGARDE_CLE" -in "$CHIFFRE" -out "$CLAIR" ;;
-  *)       echo "Méthode de chiffrement inconnue : $methode" >&2; exit 1 ;;
-esac
+dechiffrer "$CHIFFRE" "$CLAIR" "$methode"
 
 OBTENUE="$(sha256sum "$CLAIR" | cut -d' ' -f1)"
 if [ "$OBTENUE" != "$empreinte_sha256" ]; then
@@ -73,7 +66,19 @@ if [ "$OBTENUE" != "$empreinte_sha256" ]; then
   echo "  obtenue  : $OBTENUE" >&2
   exit 1
 fi
-echo "      empreinte conforme"
+
+# AVEC age, L'EMPREINTE N'EST PLUS LE SEUL REMPART, ET C'EST LE PROGRÈS DU
+# LOT 6. Un fichier age altéré ne se déchiffre pas du tout : la commande
+# ci-dessus aurait déjà échoué. L'empreinte reste vérifiée — elle couvre
+# maintenant l'autre moitié du problème, celle où le fichier est intact mais
+# n'est pas celui qu'annonce le manifeste.
+if [ "$methode" = "openssl" ]; then
+  echo "      empreinte conforme — mais chiffrement NON AUTHENTIFIÉ (openssl)" >&2
+  echo "      Cette sauvegarde est antérieure au passage à age, ou a été prise" >&2
+  echo "      sur une machine sans age. Voir ./infra/age-cles.sh." >&2
+else
+  echo "      empreinte conforme, chiffrement authentifié ($methode)"
+fi
 
 # ── 2. Machine vierge ────────────────────────────────────────────────────
 echo "[2/5] Démarrage d'une base vierge…"
@@ -214,6 +219,13 @@ fi
 DUREE=$(( $(date +%s) - DEBUT ))
 echo
 if [ "$ECHECS" -eq 0 ] && [ "$GRAVES" -eq 0 ]; then
+  # Marqueur horodaté du dernier exercice RÉUSSI. C'est lui que la supervision
+  # relève : « nous sauvegardons » et « nous savons restaurer » sont deux
+  # affirmations différentes, et seule la seconde tient une promesse
+  # commerciale. Écrit ici et nulle part ailleurs — donc jamais après un échec.
+  printf 'horodatage=%s\nduree_secondes=%s\nmethode=%s\n' \
+    "$(date -u +%Y%m%dT%H%M%SZ)" "$DUREE" "$methode" > "$SOURCE/dernier-exercice"
+
   echo "RESTAURATION RÉUSSIE en ${DUREE} s — données rétablies, isolation intacte."
   echo "Consignez cette durée : c'est votre délai de reprise mesuré, pas estimé."
   exit 0
