@@ -136,16 +136,43 @@ describe('Schéma', { skip: baseDisponible ? false : RAISON_SAUT }, () => {
     assert.equal(rows[0].rolsuper, false);
   });
 
-  test('un compte du personnel ne peut pas être rattaché à une organisation', async () => {
+  test('un compte du personnel ne peut pas être rattaché à une organisation', async (t) => {
+    // Le test crée SON organisation.
+    //
+    // Il lisait auparavant « (select id from organisations limit 1) », une
+    // donnée qu'il ne produisait pas. Sur une base vide — celle de
+    // l'intégration continue — le sous-select rend NULL, et un compte de
+    // personnel SANS organisation satisfait justement la contrainte : le test
+    // passait donc pour la mauvaise raison partout où la base était amorcée,
+    // et échouait ailleurs. Un test qui dépend de données qu'il ne crée pas
+    // ne teste pas ce qu'il annonce.
+    const pool = getOwnerPool();
+    const { rows: [org] } = await pool.query(
+      `insert into organisations (nom, pays, est_demo)
+       values ($1, 'Sénégal', true) returning id`,
+      [`Contrainte ${process.pid}-${Date.now()}`],
+    );
+    t.after(() => pool.query('delete from organisations where id = $1', [org.id]));
+
     // La contrainte de la table, pas une validation applicative : elle tient
     // même pour une écriture faite à la main en console.
     await assert.rejects(
       () =>
-        getOwnerPool().query(
+        pool.query(
           `insert into users (organisation_id, role, email, nom, mot_de_passe_hash)
-           values ((select id from organisations limit 1), 'staff', 'incoherent@test.sn', 'X', 'x')`,
+           values ($1, 'staff', 'incoherent@test.sn', 'X', 'x')`,
+          [org.id],
         ),
       /users_org_selon_role/,
     );
+
+    // Le miroir : le même compte SANS organisation doit passer, sinon la
+    // contrainte interdirait aussi ce qu'elle doit permettre.
+    const { rows: [ok] } = await pool.query(
+      `insert into users (organisation_id, role, email, nom, mot_de_passe_hash)
+       values (null, 'staff', $1, 'X', 'x') returning id`,
+      [`coherent-${Date.now()}@test.sn`],
+    );
+    await pool.query('delete from users where id = $1', [ok.id]);
   });
 });
