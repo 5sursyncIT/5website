@@ -39,6 +39,18 @@ services:
       NODE_ENV: production
       API_PORT: 4000
       DATABASE_URL: ${DATABASE_URL}
+      # LES DEUX CONNEXIONS, ET NON UNE SEULE.
+      #
+      # DATABASE_URL appartient au propriétaire des tables, qui contourne
+      # Row-Level Security ; DATABASE_APP_URL est le rôle app_5sync, à qui les
+      # politiques d'isolation s'appliquent, et c'est le seul que l'API emploie.
+      #
+      # Elles manquaient ici. assertProductionConfig() exige la seconde dès que
+      # NODE_ENV=production — donc toujours, dans ce fichier : l'API refusait de
+      # démarrer, et la pile ne pouvait pas monter. Le refus était le bon
+      # comportement ; c'est la configuration qui était incomplète.
+      DATABASE_APP_URL: ${DATABASE_APP_URL}
+      DATABASE_APP_PASSWORD: ${DATABASE_APP_PASSWORD:-}
       DOCUMENTS_DIR: /srv/documents
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-587}
@@ -46,10 +58,23 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       MAIL_FROM: ${MAIL_FROM:-}
       MAIL_DESACTIVE: ${MAIL_DESACTIVE:-0}
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+      SAUVEGARDE_DIR: /srv/sauvegardes
     volumes:
       # Les documents survivent au conteneur : les perdre serait perdre des
       # livrables validés contradictoirement.
       - documents:/srv/documents
+      # Les sauvegardes, EN LECTURE SEULE.
+      #
+      # L'API n'y écrit jamais — ce sont les scripts d'infrastructure qui
+      # sauvegardent. Elle a seulement besoin de lire les manifestes et les
+      # marqueurs pour dire, dans /api/v1/metrics, quand date la dernière
+      # sauvegarde et le dernier exercice de restauration réussi.
+      #
+      # « :ro » n'est pas une précaution de principe : un service exposé au
+      # réseau qui peut écrire dans le répertoire de sauvegarde annule une
+      # bonne part de l'intérêt d'avoir des sauvegardes.
+      - ${SAUVEGARDE_DIR:-../.sauvegardes}:/srv/sauvegardes:ro
     depends_on:
       postgres:
         condition: service_healthy
