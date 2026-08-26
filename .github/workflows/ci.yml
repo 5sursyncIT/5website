@@ -74,18 +74,65 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Les configurations d'infrastructure sont VÉRIFIÉES, pas relues.
+      #
+      # Le lot 6 a trouvé, dans un fichier committé et jamais contrôlé, un
+      # « limit_req_zone » posé dans un bloc « server » — où nginx l'interdit
+      # et refuse de démarrer. La pile entière était inaccessible, et aucun
+      # test ne le disait. Une configuration qu'on ne fait pas valider est du
+      # texte : celles-ci le sont maintenant à chaque fusion.
+      - name: Configurations d'infrastructure
+        run: |
+          docker run --rm --add-host web:127.0.0.1 --add-host api:127.0.0.1 \
+            -v "$PWD/infra/nginx/5sursync.conf:/etc/nginx/conf.d/default.conf:ro" \
+            nginx:1.27-alpine nginx -t
+          docker run --rm -v "$PWD/infra/supervision:/rules:ro" \
+            --entrypoint promtool prom/prometheus:v2.53.0 check rules /rules/alertes.yml
+          docker compose -f infra/compose.yml --env-file .env.example config >/dev/null
+
       # L'exercice de restauration est le seul contrôle qui prouve que les
       # sauvegardes servent à quelque chose. Il tourne à chaque fusion : le
       # premier essai ne doit pas avoir lieu le jour de l'incident.
+      #
+      # IL EXERCE LE CHEMIN DE PRODUCTION, ET C'EST NOUVEAU. Jusqu'au lot 6 il
+      # tournait avec openssl — faute d'age sur le runner — c'est-à-dire qu'il
+      # validait un chemin de code que la production n'emploierait jamais. Une
+      # paire de clés est donc générée ici, et l'exercice passe par age comme
+      # le fera le serveur.
       - name: Exercice de restauration
         env:
-          SAUVEGARDE_CLE: cle-integration-continue
           POSTGRES_CONTENEUR: ${{ job.services.postgres.id }}
           # Ni POSTGRES_DB ni POSTGRES_USER : ils se déduisent de DATABASE_URL,
           # déclarée une seule fois plus haut.
+          SAUVEGARDE_AUTHENTIFICATION: exigee
+          SAUVEGARDE_IDENTITE: ${{ runner.temp }}/identite-age.txt
         run: |
+          ./infra/age-cles.sh "$SAUVEGARDE_IDENTITE"
+          SAUVEGARDE_DESTINATAIRE="$(grep -o 'age1[a-z0-9]*' "$SAUVEGARDE_IDENTITE" | head -1)"
+          export SAUVEGARDE_DESTINATAIRE
           ./infra/sauvegarde.sh
           ./infra/restauration-test.sh
+
+      # Le dépôt hors site est exercé contre un répertoire local : ce n'est pas
+      # « hors site », mais c'est la même logique de dépôt, de RELECTURE et de
+      # comparaison d'empreinte. Ce qui est vérifié ici est ce qui se trompe —
+      # un envoi qui se dit réussi en ayant écrit un fichier tronqué.
+      - name: Dépôt hors site — dépôt, relecture, détection d'un fichier abîmé
+        env:
+          HORS_SITE_TRANSPORT: rsync
+          HORS_SITE_CIBLE: ${{ runner.temp }}/coffre
+        run: |
+          ./infra/hors-site.sh
+          ./infra/hors-site.sh --verifier
+
+          # On abîme la copie en face : la relecture DOIT le voir.
+          fichier="$(ls "$HORS_SITE_CIBLE"/*.dump.enc | head -1)"
+          printf 'CORRUPTION' | dd of="$fichier" bs=1 seek=2000 conv=notrunc status=none
+          if ./infra/hors-site.sh --verifier; then
+            echo "::error::une copie hors site abîmée est passée pour conforme"
+            exit 1
+          fi
+          echo "Altération détectée par la relecture, comme attendu."
 
   visuel:
     runs-on: ubuntu-latest

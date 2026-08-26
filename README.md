@@ -3,9 +3,10 @@
 Site institutionnel, espace client et back-office — construits d'après la
 maquette Claude Design « Refonte site 5sursync », en JavaScript de bout en bout.
 
-**Lots 0, 1, 2, 3 et 5 livrés** — fondations, vitrine, socle de données et
-accès, espace client, durcissement. Du **lot 4** — le back-office — seule la
-couche HTTP est livrée : les écrans attendent des artboards. Voir `docs/`.
+**Lots 0, 1, 2, 3, 5 et 6 livrés** — fondations, vitrine, socle de données et
+accès, espace client, durcissement, mise en production. Du **lot 4** — le
+back-office — seule la couche HTTP est livrée : les écrans attendent des
+artboards. Voir `docs/`.
 
 ## Démarrer
 
@@ -31,6 +32,10 @@ Claude Design.
 | `npm run design:visual:update` | Réécrit la base d'images — à relire en revue, jamais à lancer par réflexe |
 | `npm run db:migrate` | Applique les migrations SQL |
 | `npm run db:seed` | Jeu de démonstration — refuse de tourner en production |
+| `./infra/age-cles.sh` | Génère la paire de clés qui protège les sauvegardes |
+| `./infra/sauvegarde.sh` | Vidage chiffré et manifeste de contrôle |
+| `./infra/hors-site.sh` | Dépose hors site, **et relit ce qu'il a déposé** |
+| `./infra/restauration-test.sh` | **Le seul contrôle qui prouve que les sauvegardes servent** |
 
 ## Organisation
 
@@ -42,7 +47,7 @@ packages/tokens Les deux couches de tokens (voir son README)
 packages/ui     Composants, construits sur les tokens
 design/reference Instantané versionné de la maquette Claude Design
 design/baselines Base d'images de la régression visuelle
-infra           Compose, Nginx, Dockerfiles
+infra           Compose, Nginx, Dockerfiles, sauvegardes, supervision
 tools           design-pull, visual
 ```
 
@@ -70,6 +75,28 @@ règle ESLint au lot 1, avant que le site public n'en accumule.
 cp .env.example .env
 docker compose -f infra/compose.yml --env-file .env up --build   # http://localhost:8080
 ```
+
+Les migrations se posent depuis l'image, qui les embarque :
+
+```bash
+docker compose -f infra/compose.yml --env-file .env exec api node apps/api/src/db/migrate-cli.js
+```
+
+### Sauvegardes et supervision
+
+Trois réglages avant toute mise en production réelle, et le service ou les
+scripts refusent de tourner sans eux :
+
+- **`SAUVEGARDE_DESTINATAIRE`** — clé publique age, générée par
+  `./infra/age-cles.sh`. Sans elle, la sauvegarde refuse de chiffrer sans
+  authentifier. L'identité, elle, ne reste pas sur le serveur.
+- **`HORS_SITE_TRANSPORT` / `HORS_SITE_CIBLE`** — une sauvegarde posée sur la
+  machine qu'elle protège ne protège de rien.
+- **`METRICS_TOKEN`** — sans lui, `/api/v1/metrics` répond 404 et le service
+  n'émet aucune métrique.
+
+Les règles d'alerte Prometheus sont dans `infra/supervision/alertes.yml`. Voir
+`docs/lot-6.md` pour ce qu'elles surveillent et pourquoi.
 
 L'atelier n'est pas publié sur un build de production sauf
 `ENABLE_DESIGN_WORKSHOP=1`. Attention : la page étant pré-générée, la variable
