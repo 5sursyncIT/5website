@@ -76,6 +76,8 @@ export async function jeuDeuxOrganisations() {
   const userB = await compte(b, 'client_admin', `b-${suffixe}@test.gn`);
   const personnel = await compte(null, 'staff', `staff-${suffixe}@5sursync.com`);
 
+  const emails = [`a-${suffixe}@test.sn`, `b-${suffixe}@test.gn`, `staff-${suffixe}@5sursync.com`];
+
   return {
     a,
     b,
@@ -84,11 +86,21 @@ export async function jeuDeuxOrganisations() {
     userA,
     userB,
     personnel,
-    emailA: `a-${suffixe}@test.sn`,
+    emails,
+    emailA: emails[0],
     motDePasse: 'mot-de-passe-de-test',
     async nettoyer() {
       await pool.query('delete from organisations where id = any($1)', [[a, b]]);
       await pool.query('delete from users where id = $1', [personnel]);
+      // LES ÉCHECS VOLONTAIRES S'EFFACENT AUSSI.
+      // Plusieurs suites se trompent de mot de passe exprès, depuis 127.0.0.1
+      // — c'est ainsi qu'on vérifie qu'un refus ne dit pas pourquoi. Chaque
+      // exécution en laisse deux, et la limitation par adresse bloque à dix
+      // sur quinze minutes : au cinquième `npm test` d'affilée, toute la
+      // suite se met à répondre 429 sans qu'aucun code n'ait changé. Le
+      // symptôme désigne alors le mauvais coupable, ce qui coûte plus cher
+      // que la panne.
+      await pool.query('delete from tentatives_connexion where email = any($1)', [emails]);
     },
   };
 }

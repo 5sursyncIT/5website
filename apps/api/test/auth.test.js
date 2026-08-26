@@ -128,6 +128,9 @@ describe('Connexion', { skip: baseDisponible ? false : RAISON_SAUT }, () => {
   });
 
   after(async () => {
+    await getOwnerPool().query('delete from tentatives_connexion where email = $1', [
+      'inconnu@nulle-part.sn',
+    ]);
     await jeu?.nettoyer();
     await closePools();
   });

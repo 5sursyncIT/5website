@@ -48,6 +48,12 @@ describe('API — isolation de bout en bout', { skip: baseDisponible ? false : R
 
   after(async () => {
     await app?.close();
+    // L'adresse inexistante n'appartient à aucun jeu : elle s'efface ici. Sans
+    // cela, ses échecs s'accumulent sur 127.0.0.1 d'une exécution à l'autre et
+    // finissent par faire répondre 429 à toute la suite.
+    await (await import('../src/db/pool.js'))
+      .getOwnerPool()
+      .query('delete from tentatives_connexion where email = $1', ['personne@nulle-part.sn']);
     await jeu?.nettoyer();
     await closePools();
   });
