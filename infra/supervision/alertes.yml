@@ -1,0 +1,158 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Règles d'alerte Prometheus.
+#
+#   rule_files:
+#     - /etc/prometheus/5sync-alertes.yml
+#
+# CE QUI EST ICI EST CE QUI DOIT RÉVEILLER QUELQU'UN, ET RIEN D'AUTRE.
+# Une console d'alertes qui sonne pour des choses dont personne ne fait rien
+# apprend à ne plus être regardée. Chaque règle ci-dessous répond à « que
+# fait-on quand elle part ? » — si la réponse était « on la referme », elle
+# n'y serait pas.
+#
+# Les métriques métier — tickets ouverts, demandes en attente — sont exposées
+# mais volontairement NON alertées : ce sont des indicateurs de charge, pas des
+# incidents. Elles ont leur place sur un tableau de bord, pas dans un téléphone
+# à trois heures du matin.
+# ═══════════════════════════════════════════════════════════════════════════
+groups:
+  - name: 5sync-disponibilite
+    rules:
+      - alert: ApiInjoignable
+        expr: up{job="5sync-api"} == 0
+        for: 2m
+        labels: { severite: critique }
+        annotations:
+          resume: "L'API 5/Sync ne répond plus au collecteur."
+          action: >-
+            Vérifier le conteneur api, puis nginx. L'espace client et le
+            back-office sont inaccessibles ; le site public, lui, est
+            pré-généré et tient sans l'API.
+
+      - alert: MetriquesAbsentes
+        # LA RÈGLE QUI SURVEILLE LA SURVEILLANCE. Sans jeton configuré,
+        # /api/v1/metrics répond 404 et ce service devient muet — un service
+        # muet et un service en bonne santé se ressemblent beaucoup trop.
+        expr: absent(cinqsync_base_disponible)
+        for: 10m
+        labels: { severite: critique }
+        annotations:
+          resume: "Aucune métrique 5/Sync ne parvient au collecteur."
+          action: >-
+            Vérifier METRICS_TOKEN côté API et côté collecteur. Tant que cette
+            alerte est active, aucune des autres ne peut partir.
+
+      - alert: BaseInjoignable
+        expr: cinqsync_base_disponible == 0
+        for: 1m
+        labels: { severite: critique }
+        annotations:
+          resume: "L'API répond mais PostgreSQL est injoignable."
+          action: >-
+            La sonde /api/v1/health renvoie 503. Aucune authentification n'est
+            possible dans cet état.
+
+  - name: 5sync-sauvegardes
+    rules:
+      - alert: SauvegardeEnRetard
+        # 26 h et non 24 : une sauvegarde quotidienne qui prend dix minutes de
+        # plus un jour de forte charge ne doit pas déclencher une astreinte.
+        expr: cinqsync_sauvegarde_age_secondes > 26 * 3600
+        for: 30m
+        labels: { severite: majeure }
+        annotations:
+          resume: "Aucune sauvegarde depuis plus de 26 heures."
+          action: >-
+            Vérifier la tâche planifiée qui lance ./infra/sauvegarde.sh. Une
+            sauvegarde qui a cessé de tourner ne fait aucun bruit : c'est sa
+            propriété la plus dangereuse.
+
+      - alert: SauvegardeAbsente
+        expr: absent(cinqsync_sauvegarde_age_secondes)
+        for: 1h
+        labels: { severite: majeure }
+        annotations:
+          resume: "Aucune sauvegarde n'existe, ou son manifeste est illisible."
+          action: >-
+            La série n'est pas émise quand il n'y a rien à mesurer — une valeur
+            à zéro voudrait dire « sauvegarde d'il y a une seconde », soit
+            l'inverse de la vérité.
+
+      - alert: SauvegardeNonAuthentifiee
+        expr: cinqsync_sauvegarde_authentifiee == 0
+        for: 1h
+        labels: { severite: majeure }
+        annotations:
+          resume: "La dernière sauvegarde est chiffrée sans être authentifiée."
+          action: >-
+            openssl enc chiffre mais n'authentifie pas : une altération ne se
+            verrait pas au déchiffrement. Configurer SAUVEGARDE_DESTINATAIRE —
+            voir ./infra/age-cles.sh.
+
+      - alert: HorsSiteEnRetard
+        expr: cinqsync_hors_site_age_secondes > 48 * 3600
+        for: 1h
+        labels: { severite: majeure }
+        annotations:
+          resume: "Aucun dépôt hors site vérifié depuis plus de 48 heures."
+          action: >-
+            Les sauvegardes restent sur la machine qu'elles protègent. Elles ne
+            couvrent plus que la suppression accidentelle. Lancer
+            ./infra/hors-site.sh --verifier pour voir ce qui bloque.
+
+      - alert: HorsSiteAbsent
+        expr: absent(cinqsync_hors_site_age_secondes)
+        for: 6h
+        labels: { severite: majeure }
+        annotations:
+          resume: "Aucun dépôt hors site n'a jamais été vérifié."
+          action: "Configurer HORS_SITE_TRANSPORT et HORS_SITE_CIBLE."
+
+      - alert: ExerciceDeRestaurationAncien
+        # LA RÈGLE QU'ON NE TROUVE PRESQUE JAMAIS, et celle qui distingue
+        # « nous sauvegardons » de « nous savons restaurer ». Une sauvegarde
+        # qu'on n'a pas restaurée depuis un mois est redevenue une hypothèse.
+        expr: cinqsync_restauration_exercice_age_secondes > 30 * 24 * 3600
+        for: 1h
+        labels: { severite: mineure }
+        annotations:
+          resume: "Le dernier exercice de restauration réussi date de plus de 30 jours."
+          action: >-
+            Lancer ./infra/restauration-test.sh. Le site promet à nos clients
+            « des restaurations testées, pas seulement planifiées » : cette
+            alerte mesure si la promesse tient encore.
+
+      - alert: ExerciceDeRestaurationJamaisFait
+        expr: absent(cinqsync_restauration_exercice_age_secondes)
+        for: 6h
+        labels: { severite: majeure }
+        annotations:
+          resume: "Aucun exercice de restauration n'a jamais réussi sur cette machine."
+          action: "Le premier essai ne doit pas avoir lieu le jour de l'incident."
+
+  - name: 5sync-securite
+    rules:
+      - alert: RafaleDeConnexionsEchouees
+        # Le seuil est au-dessus de ce qu'une limitation normale produit : on
+        # alerte sur une campagne, pas sur un agent qui se trompe deux fois.
+        expr: cinqsync_connexions_echouees_fenetre > 50
+        for: 5m
+        labels: { severite: majeure }
+        annotations:
+          resume: "Plus de 50 échecs de connexion dans la fenêtre d'observation."
+          action: >-
+            La limitation par adresse et par compte bloque déjà ; cette alerte
+            dit qu'on est visé. Relever les adresses dans tentatives_connexion.
+
+      - alert: TauxDErreursServeur
+        expr: >-
+          sum(rate(cinqsync_requetes_erreurs_total[5m]))
+            / clamp_min(sum(rate(cinqsync_requetes_total[5m])), 0.001) > 0.02
+        for: 10m
+        labels: { severite: majeure }
+        annotations:
+          resume: "Plus de 2 % des requêtes se terminent en 5xx."
+          action: >-
+            Un 5xx est une panne de notre côté : une saisie invalide répond
+            400, une ressource hors périmètre 404. Consulter les journaux de
+            l'API.

@@ -40,12 +40,38 @@ export const config = {
 
   sessionTtlHours: Number(process.env.SESSION_TTL_HOURS ?? 12),
   cookieName: process.env.SESSION_COOKIE ?? '5sync_session',
+
+  /**
+   * Jeton du collecteur de métriques.
+   *
+   * Les métriques disent combien d'organisations sont clientes, combien de
+   * tickets sont ouverts, combien de comptes existent. Ce sont des chiffres
+   * commerciaux : le nombre de clients d'une entreprise de services n'a pas à
+   * être lisible par quiconque atteint le port. D'où un jeton, et non un
+   * simple « c'est interne, personne n'ira voir ».
+   */
+  metricsToken: process.env.METRICS_TOKEN ?? null,
 };
 
 export function assertProductionConfig() {
   if (config.env !== 'production') return;
   required('DATABASE_URL');
   required('DATABASE_APP_URL');
+
+  if (!config.metricsToken) {
+    // Un avertissement, pas un refus de démarrer. Refuser mettrait la
+    // supervision sur le chemin critique du démarrage, ce qui est le contraire
+    // du but : un service qui ne démarre pas parce qu'on n'a pas encore
+    // branché Prometheus est moins disponible, pas mieux supervisé.
+    //
+    // La contrepartie est assumée et couverte : sans jeton, /metrics répond
+    // 404, et la règle d'alerte « absent(5sync_base_disponible) » livrée dans
+    // infra/supervision/alertes.yml fait du silence lui-même une alerte.
+    console.warn(
+      "[supervision] METRICS_TOKEN n'est pas défini : /api/v1/metrics est fermé. " +
+        'Aucune métrique ne sortira de ce service. Voir infra/supervision/.',
+    );
+  }
 
   if (config.appUrl === config.ownerUrl) {
     throw new Error(

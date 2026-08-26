@@ -13,6 +13,8 @@ import routesTicketsEcriture from './routes/v1/tickets-ecriture.js';
 import routesTicketsAdministration from './routes/v1/tickets-administration.js';
 import routesBackOffice from './routes/v1/back-office.js';
 import routesAudit from './routes/v1/audit.js';
+import routesMetrics from './routes/v1/metrics.js';
+import { brancherComptage } from './supervision/compteurs.js';
 import multipart from '@fastify/multipart';
 
 /**
@@ -28,6 +30,10 @@ export function buildApp({ logger = true } = {}) {
     disableRequestLogging: false,
   });
 
+  // Le comptage est branché AVANT les routes : un crochet posé après ne
+  // verrait pas les requêtes servies par ce qui a été enregistré avant lui.
+  brancherComptage(app);
+
   app.register(sessionPlugin);
   app.register(routesAuth);
   app.register(routesTotp);
@@ -41,6 +47,7 @@ export function buildApp({ logger = true } = {}) {
   app.register(routesTicketsAdministration);
   app.register(routesBackOffice);
   app.register(routesAudit);
+  app.register(routesMetrics);
 
   /**
    * Sonde de santé.
