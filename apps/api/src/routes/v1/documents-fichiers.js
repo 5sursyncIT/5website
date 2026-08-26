@@ -1,6 +1,7 @@
 import * as documents from '../../repositories/documents.js';
 import * as fichiers from '../../stockage/fichiers.js';
 import { notifierDepotDocument } from '../../mail/envoi.js';
+import * as antivirus from '../../stockage/antivirus.js';
 
 /**
  * Dépôt et téléchargement de fichiers.
@@ -25,6 +26,13 @@ export default async function routesDocumentsFichiers(app) {
         error: 'fichier_trop_volumineux',
         message: `Maximum ${Math.round(fichiers.TAILLE_MAX / 1024 / 1024)} Mo.`,
       });
+    }
+
+    // L'analyse a lieu AVANT toute écriture : un fichier reconnu ne doit
+    // jamais toucher le disque, même le temps d'être supprimé ensuite.
+    const verdict = await antivirus.analyser(contenu, { log: request.log });
+    if (!verdict.analyse && antivirus.configure) {
+      request.log.warn({ documentId: request.params.id }, 'dépôt non analysé');
     }
 
     let documentDepose = null;

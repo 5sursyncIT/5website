@@ -1,6 +1,7 @@
 import { getOwnerPool, closePools } from '../src/db/pool.js';
 import { hacher } from '../src/auth/passwords.js';
 import { config } from '../src/config.js';
+import { createHmac } from 'node:crypto';
 
 /**
  * Les tests d'isolation ont besoin d'une vraie base PostgreSQL : ils vérifient
@@ -103,6 +104,84 @@ export function sessionDe({ userId, role, organisationId }) {
     email: null,
     estPersonnel: role === 'admin' || role === 'staff',
   };
+}
+
+/**
+ * Ouvre une session de PERSONNEL 5/Sync, second facteur compris.
+ *
+ * Depuis le lot 5, un compte admin ou staff n'ouvre rien tant qu'il n'a pas
+ * franchi le second facteur : une session obtenue avec le seul mot de passe
+ * ne donne accès qu'à son propre enrôlement. Cette aide reproduit le parcours
+ * réel — connexion, enrôlement si besoin, code — plutôt que de contourner le
+ * verrou, ce qui reviendrait à ne pas le tester.
+ *
+ * @returns {Promise<string>} le jeton de session, second facteur franchi
+ */
+export async function connecterPersonnel(app, email, motDePasse = 'mot-de-passe-de-test') {
+  const connexion = await app.inject({
+    method: 'POST',
+    url: '/api/v1/auth/connexion',
+    payload: { email, motDePasse },
+  });
+
+  if (connexion.statusCode !== 200) {
+    throw new Error(`connexion refusée pour ${email} : ${connexion.statusCode}`);
+  }
+
+  const jeton = connexion.cookies.find((c) => c.name === '5sync_session').value;
+  const cookies = { '5sync_session': jeton };
+
+  if (!connexion.json().secondFacteurRequis) return jeton;
+
+  let secret;
+  const enrolement = await app.inject({
+    method: 'POST',
+    url: '/api/v1/auth/totp/enrolement',
+    cookies,
+  });
+
+  if (enrolement.statusCode === 200) {
+    secret = enrolement.json().secret;
+  } else {
+    // Déjà enrôlé : le secret n'est jamais renvoyé deux fois, on le relit en
+    // base — ce qu'un test peut faire et qu'une application ne pourrait pas.
+    const { rows } = await getOwnerPool().query('select totp_secret from users where email = $1', [
+      email,
+    ]);
+    secret = rows[0].totp_secret;
+  }
+
+  const verification = await app.inject({
+    method: 'POST',
+    url: '/api/v1/auth/totp/verifier',
+    cookies,
+    payload: { code: codeTotp(secret) },
+  });
+
+  if (verification.statusCode !== 200) {
+    throw new Error(`second facteur refusé pour ${email} : ${verification.statusCode}`);
+  }
+
+  return jeton;
+}
+
+/** Calcule le code TOTP courant, comme le ferait l'application du téléphone. */
+export function codeTotp(secret) {
+  const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  let bits = '';
+  for (const c of secret) bits += ALPHABET.indexOf(c).toString(2).padStart(5, '0');
+
+  const octets = [];
+  for (let i = 0; i + 8 <= bits.length; i += 8) octets.push(Number.parseInt(bits.slice(i, i + 8), 2));
+
+  const compteur = Buffer.alloc(8);
+  compteur.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 1000 / 30)));
+
+  const h = createHmac('sha1', Buffer.from(octets)).update(compteur).digest();
+  const d = h[h.length - 1] & 0x0f;
+  const b =
+    ((h[d] & 0x7f) << 24) | ((h[d + 1] & 0xff) << 16) | ((h[d + 2] & 0xff) << 8) | (h[d + 3] & 0xff);
+  return String(b % 1_000_000).padStart(6, '0');
 }
 
 export { closePools };

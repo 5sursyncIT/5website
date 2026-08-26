@@ -1,4 +1,5 @@
 import { connecter } from '../../auth/connexion.js';
+import * as limitation from '../../auth/limitation.js';
 import { revoquer } from '../../auth/sessions.js';
 import { config } from '../../config.js';
 
@@ -31,6 +32,28 @@ export default async function routesAuth(app) {
       return reply.code(400).send({ error: 'requete_invalide' });
     }
 
+    // La limite est vérifiée AVANT de hacher : sans cela, un attaquant fait
+    // consommer 19 Mio et deux passes d'Argon2 à chaque essai, et la
+    // protection devient elle-même le vecteur d'épuisement.
+    const limite = await limitation.verifier({ ip: request.ip, email });
+    if (limite.bloque) {
+      request.log.warn(
+        { ip: request.ip, motif: limite.motif },
+        'connexion bloquée : trop de tentatives',
+      );
+      return reply
+        .code(429)
+        .header('retry-after', String(limite.secondes))
+        .send({
+          error: 'trop_de_tentatives',
+          message:
+            limite.motif === 'compte'
+              ? 'Ce compte est temporairement verrouillé après plusieurs échecs. Réessayez dans quelques minutes.'
+              : 'Trop de tentatives depuis cette adresse. Réessayez dans quelques minutes.',
+          reprendreDans: limite.secondes,
+        });
+    }
+
     const r = await connecter({
       email,
       motDePasse,
@@ -38,13 +61,27 @@ export default async function routesAuth(app) {
       userAgent: request.headers['user-agent'] ?? null,
     });
 
+    await limitation.enregistrer({ ip: request.ip, email, reussie: r.ok });
+
     if (!r.ok) {
       // Même réponse pour un e-mail inconnu et un mot de passe erroné.
       return reply.code(401).send({ error: 'identifiants_invalides' });
     }
 
+    // L'ardoise est effacée : quatre échecs suivis d'une réussite ne doivent
+    // pas laisser le compte à une tentative du verrouillage.
+    await limitation.reinitialiser({ email });
+
     reply.setCookie(config.cookieName, r.jeton, optionsCookie(r.expire));
-    return { utilisateur: r.utilisateur };
+
+    // Le second facteur est annoncé ici, sinon l'interface n'a aucun moyen de
+    // savoir qu'elle doit demander un code : la session existe, mais elle
+    // n'ouvre rien tant qu'il n'est pas franchi.
+    return {
+      utilisateur: r.utilisateur,
+      secondFacteurRequis: r.secondFacteurRequis,
+      secondFacteurEnrole: r.secondFacteurEnrole,
+    };
   });
 
   app.post('/api/v1/auth/deconnexion', async (request, reply) => {
@@ -63,6 +100,8 @@ export default async function routesAuth(app) {
       role: session.role,
       organisationId: session.organisationId,
       estPersonnel: session.estPersonnel,
+      secondFacteurRequis: session.secondFacteurRequis,
+      secondFacteurEnrole: session.totpEnrole,
     };
   });
 }

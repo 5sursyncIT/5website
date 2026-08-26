@@ -2,7 +2,7 @@ import { test, before, after, describe } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { buildApp } from '../src/app.js';
-import { baseDisponible, RAISON_SAUT, jeuDeuxOrganisations, closePools } from './helpers.js';
+import { baseDisponible, RAISON_SAUT, jeuDeuxOrganisations, closePools , connecterPersonnel } from './helpers.js';
 import { config } from '../src/config.js';
 
 /**
@@ -40,7 +40,10 @@ describe('API — isolation de bout en bout', { skip: baseDisponible ? false : R
       'select email from users where id = $1',
       [jeu.personnel],
     );
-    cookiePersonnel = await connexion(rows[0].email);
+    // Le personnel franchit le second facteur : depuis le lot 5, une session
+    // admin ou staff qui ne l'a pas franchi n'ouvre rien d'autre que son
+    // propre enrôlement.
+    cookiePersonnel = await connecterPersonnel(app, rows[0].email, jeu.motDePasse);
   });
 
   after(async () => {

@@ -74,6 +74,19 @@ jobs:
       - name: Build
         run: npm run build
 
+      # L'exercice de restauration est le seul contrôle qui prouve que les
+      # sauvegardes servent à quelque chose. Il tourne à chaque fusion : le
+      # premier essai ne doit pas avoir lieu le jour de l'incident.
+      - name: Exercice de restauration
+        env:
+          SAUVEGARDE_CLE: cle-integration-continue
+          POSTGRES_CONTENEUR: ${{ job.services.postgres.id }}
+          POSTGRES_DB: 5sync_test
+          POSTGRES_USER: 5sync
+        run: |
+          ./infra/sauvegarde.sh
+          ./infra/restauration-test.sh
+
   visuel:
     runs-on: ubuntu-latest
 

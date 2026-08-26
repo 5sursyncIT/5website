@@ -3,6 +3,7 @@ import { config } from './config.js';
 import { getAppPool } from './db/pool.js';
 import sessionPlugin from './plugins/session.js';
 import routesAuth from './routes/v1/auth.js';
+import routesTotp from './routes/v1/totp.js';
 import routesTickets from './routes/v1/tickets.js';
 import routesLeads from './routes/v1/leads.js';
 import routesModules from './routes/v1/modules.js';
@@ -26,6 +27,7 @@ export function buildApp({ logger = true } = {}) {
 
   app.register(sessionPlugin);
   app.register(routesAuth);
+  app.register(routesTotp);
   app.register(routesTickets);
   app.register(multipart);
   app.register(routesLeads);

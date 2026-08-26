@@ -24,12 +24,38 @@ async function sessionPlugin(app) {
     request.session = jeton ? await resoudre(jeton) : null;
   });
 
+  /**
+   * Routes qu'une session non vérifiée peut atteindre.
+   *
+   * Sans cette exception, un compte 5/Sync nouvellement créé ne pourrait
+   * jamais s'enrôler : il lui faudrait un second facteur pour poser son
+   * second facteur.
+   */
+  const SANS_SECOND_FACTEUR = new Set([
+    '/api/v1/auth/moi',
+    '/api/v1/auth/deconnexion',
+    '/api/v1/auth/totp/enrolement',
+    '/api/v1/auth/totp/verifier',
+  ]);
+
   app.decorateRequest('exigerSession', function exigerSession() {
     if (!this.session) {
       const erreur = new ErreurAcces('Authentification requise.');
       erreur.statusCode = 401;
       throw erreur;
     }
+
+    // LE VERROU. Une session de compte 5/Sync qui n'a pas franchi le second
+    // facteur n'ouvre rien d'autre que son propre enrôlement. Le contrôle est
+    // ici, dans le passage obligé, et non répété route par route : une route
+    // ajoutée demain en hérite sans que personne n'ait à y penser.
+    if (this.session.secondFacteurRequis && !SANS_SECOND_FACTEUR.has(this.routeOptions?.url ?? this.url.split('?')[0])) {
+      const erreur = new ErreurAcces('Second facteur requis.');
+      erreur.statusCode = 403;
+      erreur.code = 'second_facteur_requis';
+      throw erreur;
+    }
+
     return this.session;
   });
 

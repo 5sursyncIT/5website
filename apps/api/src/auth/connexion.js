@@ -14,7 +14,7 @@ export async function connecter({ email, motDePasse, ip = null, userAgent = null
   const rows = await withoutTenant(async (c) =>
     (
       await c.query(
-        `select id, role, organisation_id, nom, mot_de_passe_hash, actif
+        `select id, role, organisation_id, nom, mot_de_passe_hash, actif, totp_secret
            from users where email = $1`,
         [email],
       )
@@ -29,7 +29,19 @@ export async function connecter({ email, motDePasse, ip = null, userAgent = null
     return { ok: false };
   }
 
-  const { jeton, expire } = await ouvrir({ userId: compte.id, ip, userAgent });
+  const estPersonnel = compte.role === 'admin' || compte.role === 'staff';
+
+  /**
+   * Le second facteur ne se présente PAS au même moment que le mot de passe.
+   *
+   * On ouvre une session, mais marquée non vérifiée : elle ne donne accès
+   * qu'aux routes d'enrôlement et de vérification. Demander les deux d'un coup
+   * obligerait à garder le mot de passe en attente côté client, ou à inventer
+   * un jeton intermédiaire — deux façons d'ajouter une surface pour rien.
+   */
+  const totpValide = !estPersonnel;
+
+  const { jeton, expire } = await ouvrir({ userId: compte.id, ip, userAgent, totpValide });
 
   await withoutTenant((c) =>
     c.query('update users set derniere_connexion = now() where id = $1', [compte.id]),
@@ -39,6 +51,8 @@ export async function connecter({ email, motDePasse, ip = null, userAgent = null
     ok: true,
     jeton,
     expire,
+    secondFacteurRequis: estPersonnel,
+    secondFacteurEnrole: Boolean(compte.totp_secret),
     utilisateur: {
       id: compte.id,
       nom: compte.nom,

@@ -7,7 +7,7 @@ import { getOwnerPool } from '../src/db/pool.js';
 import { hacher } from '../src/auth/passwords.js';
 import { typeReel } from '../src/stockage/fichiers.js';
 import { messagesEnvoyes, viderMessages } from '../src/mail/transport.js';
-import { baseDisponible, RAISON_SAUT, closePools } from './helpers.js';
+import { baseDisponible, RAISON_SAUT, closePools, connecterPersonnel } from './helpers.js';
 
 const PDF = Buffer.from('%PDF-1.4\nfaux mais valide\n');
 const EXECUTABLE = Buffer.from([0x4d, 0x5a, 0x90, 0x00, 0x03, 0x00]);
@@ -30,7 +30,14 @@ describe('Espace client', { skip: baseDisponible ? false : RAISON_SAUT }, () => 
     await closePools();
   });
 
+  /**
+   * Ouvre une session. Pour un compte 5/Sync, le second facteur est franchi
+   * au passage : depuis le lot 5, une session de personnel qui ne l'a pas
+   * franchi n'ouvre rien d'autre que son propre enrôlement.
+   */
   const connecter = async (email) => {
+    if (email.endsWith('@5sursync.com')) return connecterPersonnel(app, email);
+
     const r = await app.inject({
       method: 'POST',
       url: '/api/v1/auth/connexion',

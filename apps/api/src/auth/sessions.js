@@ -22,15 +22,15 @@ function empreinte(jeton) {
   return createHash('sha256').update(jeton).digest();
 }
 
-export async function ouvrir({ userId, ip = null, userAgent = null }) {
+export async function ouvrir({ userId, ip = null, userAgent = null, totpValide = false }) {
   const jeton = randomBytes(OCTETS).toString('base64url');
   const expire = new Date(Date.now() + config.sessionTtlHours * 3600 * 1000);
 
   await withoutTenant((c) =>
     c.query(
-      `insert into sessions (user_id, token_hash, expire_le, ip, user_agent)
-       values ($1, $2, $3, $4, $5)`,
-      [userId, empreinte(jeton), expire, ip, userAgent],
+      `insert into sessions (user_id, token_hash, expire_le, ip, user_agent, totp_valide)
+       values ($1, $2, $3, $4, $5, $6)`,
+      [userId, empreinte(jeton), expire, ip, userAgent, totpValide],
     ),
   );
 
@@ -47,8 +47,9 @@ export async function resoudre(jeton) {
   const rows = await withoutTenant(async (c) =>
     (
       await c.query(
-        `select s.id as session_id, s.token_hash,
-                u.id as user_id, u.role, u.organisation_id, u.nom, u.email
+        `select s.id as session_id, s.token_hash, s.totp_valide,
+                u.id as user_id, u.role, u.organisation_id, u.nom, u.email,
+                (u.totp_secret is not null) as totp_enrole
            from sessions s
            join users u on u.id = s.user_id
           where s.token_hash = $1
@@ -68,6 +69,8 @@ export async function resoudre(jeton) {
   if (!timingSafeEqual(rows[0].token_hash, attendu)) return null;
 
   const { session_id, user_id, role, organisation_id, nom, email } = rows[0];
+  const estPersonnel = role === 'admin' || role === 'staff';
+
   return {
     sessionId: session_id,
     userId: user_id,
@@ -75,8 +78,21 @@ export async function resoudre(jeton) {
     organisationId: organisation_id,
     nom,
     email,
-    estPersonnel: role === 'admin' || role === 'staff',
+    estPersonnel,
+    totpEnrole: rows[0].totp_enrole,
+    totpValide: rows[0].totp_valide,
+    // Un compte 5/Sync voit toutes les organisations : c'est le seul rôle dont
+    // la compromission expose l'ensemble des clients. Tant que le second
+    // facteur n'est pas franchi, la session n'ouvre que l'enrôlement.
+    secondFacteurRequis: estPersonnel && !rows[0].totp_valide,
   };
+}
+
+/** Marque la session comme ayant franchi le second facteur. */
+export async function validerSecondFacteur(sessionId) {
+  await withoutTenant((c) =>
+    c.query('update sessions set totp_valide = true where id = $1', [sessionId]),
+  );
 }
 
 export async function revoquer(jeton) {

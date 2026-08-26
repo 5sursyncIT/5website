@@ -10,3 +10,4 @@ dist/
 coverage/
 design/baselines/__diff__/
 .env.test
+.sauvegardes/
