@@ -16,9 +16,10 @@
     "design:pull": "node tools/design-pull.mjs",
     "test": "node --test apps/*/test/*.test.js packages/*/test/*.test.js",
     "design:visual": "node tools/visual.mjs",
-    "design:visual:update": "node tools/visual.mjs --update",
+    "design:visual:update": "./tools/visual-docker.sh --update",
     "db:migrate": "npm run migrate --workspace=@5sync/api",
-    "db:seed": "node db/seeds/demo.js"
+    "db:seed": "node db/seeds/demo.js",
+    "design:visual:local": "node tools/visual.mjs"
   },
   "devDependencies": {
     "pixelmatch": "^7.2.0",

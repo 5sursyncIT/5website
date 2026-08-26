@@ -23,6 +23,7 @@ que ni le build, ni les tests, ni stylelint n'auraient vus. Voir plus bas.
 | `npm run build` | 3 routes, toutes pré-générées en statique |
 | Rendu de `/atelier` | 200, contenu réel présent |
 | `npm run design:visual` | 3/3 conformes, stable d'un passage à l'autre |
+| Base d'images reproductible | générée et vérifiée dans le conteneur épinglé, identique en CI |
 | La régression visuelle mord | `--site-kpi` 36 → 37 px échoue sur les 3 largeurs |
 | Débordement horizontal | aucun, en 1440 comme en 390 px |
 | Polices auto-hébergées | 12 fichiers woff2 servis depuis notre origine, **0 appel à Google au runtime** |
@@ -85,6 +86,28 @@ d'interface, ajoutés en cours d'extraction, n'avaient aucune section ; trois
 degrés de corps manquaient aussi. Un atelier incomplet est pire qu'absent : il
 donne l'illusion d'avoir tout vérifié. Corrigé, et c'est un point de vigilance
 permanent — tout token ajouté doit y apparaître.
+
+## La base d'images est spécifique à sa plateforme
+
+Le premier passage en intégration continue a échoué : 0,5 à 1,2 % de pixels
+divergents sur les trois largeurs, **à dimensions rigoureusement identiques**.
+Le diff montrait une différence répartie uniformément sur tous les glyphes,
+sans le moindre bloc structurel — c'est la rastérisation des polices qui
+change d'une pile à l'autre, pas la mise en page.
+
+Une base d'images en pixels ne vaut donc que pour l'environnement qui l'a
+produite. Trois issues possibles, et une seule est honnête :
+
+- relever le seuil de tolérance masquerait aussi les vraies régressions, ce
+  qui vide le contrôle de son objet ;
+- régénérer la base en CI ferait d'elle un résultat et non une référence :
+  elle enregistrerait ce que le code produit au lieu de le contraindre ;
+- **figer le moteur de rendu**, ce qui est retenu.
+
+Le contrôle tourne dans l'image officielle Playwright, épinglée à la version
+exacte du paquet, en CI comme en local. `npm run design:visual:update` passe
+par ce même conteneur — sans quoi une base régénérée sur un poste de
+développement échouerait de nouveau à la première proposition de modification.
 
 ## Reste à trancher avant le lot 1
 
