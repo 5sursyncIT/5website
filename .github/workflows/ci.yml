@@ -104,7 +104,11 @@ jobs:
           cd apps/web
           cp -r public .next/standalone/apps/web/
           cp -r .next/static .next/standalone/apps/web/.next/
-          PORT=3000 node .next/standalone/apps/web/server.js &
+          # HOSTNAME=0.0.0.0 est indispensable en conteneur : le serveur
+          # autonome de Next lit process.env.HOSTNAME, que Docker fixe à
+          # l'identifiant du conteneur. Il se lie alors à cette seule adresse
+          # et localhost ne répond pas — le serveur annonce pourtant « Ready ».
+          HOSTNAME=0.0.0.0 PORT=3000 node .next/standalone/apps/web/server.js &
           npx wait-on http://localhost:3000/atelier -t 30000
 
       # Compare les 3 largeurs au pixel avec design/baselines/. Une différence

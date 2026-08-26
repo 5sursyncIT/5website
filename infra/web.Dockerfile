@@ -23,6 +23,12 @@ FROM node:22-alpine AS run
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+# Le serveur autonome de Next se lie à process.env.HOSTNAME, que Docker fixe à
+# l'identifiant du conteneur. Sans cette ligne il n'écoute que sur cette
+# adresse : joignable depuis le réseau Docker, mais pas sur localhost, et
+# aucune sonde de santé interne ne passe. Le serveur annonce « Ready » quand
+# même, ce qui rend le symptôme trompeur.
+ENV HOSTNAME=0.0.0.0
 RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
 COPY --from=build --chown=nextjs:nodejs /repo/apps/web/.next/standalone ./
 COPY --from=build --chown=nextjs:nodejs /repo/apps/web/.next/static ./apps/web/.next/static
