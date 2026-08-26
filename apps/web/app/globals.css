@@ -17,7 +17,13 @@
   --site-font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", menlo, monospace;
 }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+
+  /* L'en-tête est collant : sans cette compensation, toute ancre place sa
+     cible derrière lui et le lecteur atterrit sur un titre invisible. */
+  scroll-padding-top: calc(var(--site-header-h) + 16px);
+}
 
 body {
   font-size: var(--site-body);

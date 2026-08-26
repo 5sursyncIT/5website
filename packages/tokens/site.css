@@ -52,7 +52,6 @@
      ce n'est pas une échelle, c'est un réglage fin fait à l'œil. Elles sont
      reprises telles quelles plutôt que régularisées — régulariser, ce serait
      redessiner. */
-  --site-on-ground-94:     rgb(243 242 242 / 94%);  /* fond de l'en-tête collant */
   --site-on-ground-strong: rgb(243 242 242 / 88%);
   --site-on-ground-80:     rgb(243 242 242 / 80%);  /* libellé de bouton secondaire */
   --site-on-ground-body:   rgb(243 242 242 / 72%);  /* chapô du héro */
@@ -76,6 +75,11 @@
   --site-onground-thead-bg:     #221f1c;
   --site-onground-thead-rule:   rgb(226 173 102 / 28%);
   --site-onground-thead-label:  rgb(243 242 242 / 55%);
+
+  /* Fond de l'en-tête collant : le fond du site à 94 %, posé sur un flou
+     d'arrière-plan. Ce n'est pas une encre « sur sol sombre » — c'est une
+     surface claire translucide, d'où son rangement ici. */
+  --site-bg-94: rgb(243 242 242 / 94%);
 
   /* Filets. Le filet standard EST --color-divider de Classical (16 %).
      La maquette en décline deux versions plus légères pour les lignes de

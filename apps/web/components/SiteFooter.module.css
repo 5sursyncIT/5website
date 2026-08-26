@@ -1,0 +1,68 @@
+.pied {
+  border-top: 1px solid var(--site-rule);
+  background: var(--color-surface);
+}
+
+.grille {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--site-gutter);
+  max-width: var(--site-shell);
+  margin: 0 auto;
+  padding: 48px var(--site-inset) 56px;
+}
+
+.logo {
+  width: auto;
+  height: 26px;
+  margin-bottom: 16px;
+}
+
+.mentions {
+  max-width: 48ch;
+  margin: 0;
+  color: var(--site-soft);
+  font-size: var(--site-note);
+  line-height: var(--site-leading-body);
+}
+
+.colonnes {
+  display: flex;
+  gap: 64px;
+}
+
+.colonne {
+  display: grid;
+  align-content: start;
+  gap: 9px;
+}
+
+.entete {
+  margin: 0 0 5px;
+  color: var(--site-gold);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-xs);
+  letter-spacing: var(--site-tracking-label);
+  text-transform: uppercase;
+}
+
+.lien {
+  color: var(--site-muted);
+  font-size: var(--site-body-sm);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--site-ease);
+}
+
+.lien:hover { color: var(--site-gold-deep); }
+
+@media (max-width: 900px) {
+  .grille {
+    grid-template-columns: 1fr;
+    gap: var(--site-gutter-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .colonnes { gap: 40px; }
+}

@@ -19,7 +19,8 @@
     "design:visual:update": "./tools/visual-docker.sh --update",
     "db:migrate": "npm run migrate --workspace=@5sync/api",
     "db:seed": "node db/seeds/demo.js",
-    "design:visual:local": "node tools/visual.mjs"
+    "design:visual:local": "node tools/visual.mjs",
+    "perf:budget": "node tools/budget.mjs"
   },
   "devDependencies": {
     "pixelmatch": "^7.2.0",

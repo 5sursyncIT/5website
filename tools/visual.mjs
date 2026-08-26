@@ -47,8 +47,16 @@ const VIEWPORTS = [
   { name: 'mobile', width: 390 },
 ];
 
-/** Vues capturées. Les six pages publiques s'ajouteront au lot 1. */
-const VUES = [{ name: 'atelier', path: '/atelier' }];
+/** Vues capturées : les six pages publiques, plus l'atelier de composants. */
+const VUES = [
+  { name: 'accueil', path: '/fr' },
+  { name: 'expertises', path: '/fr/expertises' },
+  { name: 'references', path: '/fr/references' },
+  { name: 'solutions', path: '/fr/solutions' },
+  { name: 'a-propos', path: '/fr/a-propos' },
+  { name: 'contact', path: '/fr/contact' },
+  { name: 'atelier', path: '/atelier' },
+];
 
 /** Seuil par pixel (0–1) : en dessous, c'est de l'antialiasing, pas un écart. */
 const SEUIL_PIXEL = 0.1;
@@ -62,7 +70,20 @@ const BASE_URL = urlIndex >= 0 ? args[urlIndex + 1] : 'http://localhost:3000';
 
 async function capture(page, vue, viewport) {
   await page.setViewportSize({ width: viewport.width, height: 900 });
-  await page.goto(`${BASE_URL}${vue.path}`, { waitUntil: 'networkidle' });
+  const reponse = await page.goto(`${BASE_URL}${vue.path}`, { waitUntil: 'load' });
+
+  // Une page absente produirait une capture de la page 404, et donc un écart
+  // incompréhensible : « 68 000 pixels divergents » au lieu de « la page n'est
+  // pas là ». On nomme la cause tout de suite.
+  if (reponse && reponse.status() >= 400) {
+    const indice =
+      vue.path === '/atelier'
+        ? "\n  L'atelier n'est publié que si le build a été fait avec " +
+          'ENABLE_DESIGN_WORKSHOP=1. La variable est lue AU BUILD : la poser au ' +
+          'démarrage du serveur ne suffit pas.'
+        : '';
+    throw new Error(`${vue.path} répond ${reponse.status()}.${indice}`);
+  }
   await page.evaluate(() => document.fonts.ready);
   // Les polices posées, on laisse la mise en page se stabiliser : sans cela,
   // la première capture diffère de toutes les suivantes.

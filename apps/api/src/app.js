@@ -1,8 +1,10 @@
 import Fastify from 'fastify';
 import { config } from './config.js';
+import { getAppPool } from './db/pool.js';
 import sessionPlugin from './plugins/session.js';
 import routesAuth from './routes/v1/auth.js';
 import routesTickets from './routes/v1/tickets.js';
+import routesLeads from './routes/v1/leads.js';
 
 /**
  * Construit l'instance Fastify sans l'écouter — c'est ce qui permettra aux
@@ -20,15 +22,35 @@ export function buildApp({ logger = true } = {}) {
   app.register(sessionPlugin);
   app.register(routesAuth);
   app.register(routesTickets);
+  app.register(routesLeads);
 
-  app.get('/api/v1/health', async () => ({
-    status: 'ok',
-    service: '5sync-api',
-    env: config.env,
-    // Le socle de données arrive au lot 2 ; on annonce l'état réel, pas « ok ».
-    database: config.databaseUrl ? 'configurée' : 'non configurée',
-    time: new Date().toISOString(),
-  }));
+  /**
+   * Sonde de santé.
+   *
+   * Elle INTERROGE la base au lieu de vérifier qu'une variable est renseignée.
+   * Une sonde qui lit sa propre configuration répond « en bonne santé » quand
+   * PostgreSQL est à terre — c'est-à-dire exactement au moment où elle devrait
+   * alerter. Elle répond 503 tant que la base ne répond pas.
+   */
+  app.get('/api/v1/health', async (request, reply) => {
+    let base = 'indisponible';
+    try {
+      await getAppPool().query('select 1');
+      base = 'disponible';
+    } catch (erreur) {
+      request.log.error({ err: erreur }, 'sonde de santé : base injoignable');
+    }
+
+    if (base !== 'disponible') reply.code(503);
+
+    return {
+      status: base === 'disponible' ? 'ok' : 'degrade',
+      service: '5sync-api',
+      env: config.env,
+      database: base,
+      time: new Date().toISOString(),
+    };
+  });
 
   app.setNotFoundHandler((request, reply) => {
     reply.code(404).send({ error: 'not_found', path: request.url });

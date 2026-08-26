@@ -1,0 +1,39 @@
+.bande { background: var(--color-bg); }
+.surface { background: var(--color-surface); }
+
+.sombre {
+  background: var(--site-ground);
+  color: var(--site-on-ground);
+}
+
+.filet { border-top: 1px solid var(--site-rule); }
+
+.conteneur {
+  max-width: var(--site-shell);
+  margin: 0 auto;
+  padding-inline: var(--site-inset);
+}
+
+.normal .conteneur { padding-block: var(--site-section); }
+.court .conteneur { padding-block: var(--site-section-sm); }
+.ample .conteneur { padding-block: var(--site-section) var(--site-section-md); }
+
+/* — rail 320 px + corps — */
+.rail {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--site-gutter);
+}
+
+.railTete { align-self: start; }
+.railCorps { min-width: 0; }
+
+/* ⚠  Repli provisoire : l'artboard des pages publiques n'est pas livré. Le
+   rail passe au-dessus du corps, ce qui est le seul comportement possible
+   sans redessiner — mais le seuil, lui, reste à valider. */
+@media (max-width: 900px) {
+  .rail {
+    grid-template-columns: 1fr;
+    gap: var(--site-gutter-md);
+  }
+}

@@ -9,6 +9,16 @@ export const metadata = {
   },
   description:
     "Ingénierie des systèmes d'information, transformation numérique et des infrastructures. Dakar, Sénégal — depuis 2016.",
+  alternates: {
+    canonical: '/fr',
+    languages: { fr: '/fr' },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'fr_SN',
+    siteName: '5/Sync IT',
+  },
+  robots: { index: true, follow: true },
 };
 
 export const viewport = {

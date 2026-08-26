@@ -1,0 +1,111 @@
+.entete {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid var(--site-rule);
+  background: var(--site-bg-94);
+  backdrop-filter: blur(8px);
+}
+
+.barre {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  max-width: var(--site-shell);
+  margin: 0 auto;
+  padding: 14px var(--site-inset);
+}
+
+.marque {
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+
+.marque img {
+  width: auto;
+  height: 30px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  margin-left: auto;
+}
+
+.lien {
+  padding-bottom: 3px;
+  border-bottom: 1px solid transparent;
+  color: var(--site-muted);
+  font-family: var(--site-font-display);
+  font-size: var(--site-title-xs);
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--site-ease), border-color var(--site-ease);
+}
+
+.lien:hover { color: var(--site-ink); }
+
+.courant {
+  border-bottom-color: var(--site-gold);
+  color: var(--site-ink);
+}
+
+.droite {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: none;
+}
+
+.langues {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label);
+  letter-spacing: 0.08em;
+}
+
+.langueActive { color: var(--site-ink); }
+.langueInactive { color: var(--site-fainter); }
+
+.plateforme {
+  padding: 9px 16px;
+  white-space: nowrap;
+}
+
+/* ── Repli provisoire — voir l'avertissement dans SiteHeader.jsx ────────── */
+@media (max-width: 1100px) {
+  .droite .langues { display: none; }
+}
+
+@media (max-width: 900px) {
+  .barre {
+    flex-wrap: wrap;
+    gap: 12px 20px;
+  }
+
+  .nav {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+    padding-bottom: 2px;
+    overflow-x: auto;
+    gap: 20px;
+
+    /* L'entrée courante doit rester visible : c'est la règle que Claude Design
+       a posée pour l'espace client en écartant le tiroir. */
+    scrollbar-width: none;
+  }
+
+  .nav::-webkit-scrollbar { display: none; }
+  .droite { margin-left: auto; }
+}
+
+@media (max-width: 560px) {
+  .plateforme:last-child { display: none; }
+}

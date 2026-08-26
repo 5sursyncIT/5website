@@ -1,0 +1,387 @@
+/* ── Héro ─────────────────────────────────────────────────────────────────
+   Sol sombre, grille 1,35fr / 1fr, statistiques sur filet vertical doré. */
+
+.hero {
+  background: var(--site-ground);
+  color: var(--site-on-ground);
+}
+
+.heroCorps {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: var(--site-gutter);
+  align-items: end;
+  max-width: var(--site-shell);
+  margin: 0 auto;
+  padding: 116px var(--site-inset) 96px;
+}
+
+.heroKicker {
+  margin-bottom: 38px;
+  letter-spacing: var(--site-tracking-hero);
+}
+
+.heroTitre {
+  margin: 0 0 30px;
+  color: var(--site-on-ground);
+  font-family: var(--site-font-display);
+  font-size: var(--site-display-hero);
+  font-weight: 400;
+  line-height: var(--site-leading-display);
+  letter-spacing: var(--site-tracking-display);
+}
+
+.heroLigne { display: block; }
+
+.heroAccent {
+  display: block;
+  color: var(--site-gold-light);
+  font-style: italic;
+}
+
+.heroChapo {
+  max-width: var(--site-measure-560);
+  margin: 0 0 40px;
+  color: var(--site-on-ground-body);
+  font-size: var(--site-lede);
+  line-height: 1.65;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.heroStats {
+  display: grid;
+  gap: 26px;
+  padding-left: 40px;
+  border-left: 1px solid var(--site-rule-onground-gold);
+}
+
+.heroPays {
+  max-width: var(--site-shell);
+  margin: 0 auto;
+  padding: 20px var(--site-inset) 34px;
+  border-top: 1px solid var(--site-rule-onground);
+  color: var(--site-on-ground-faint);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label);
+  letter-spacing: 0.14em;
+}
+
+/* ── Blocs communs ───────────────────────────────────────────────────────── */
+
+.tete { margin-bottom: 44px; }
+
+.chapoJustifie {
+  max-width: var(--site-measure);
+  margin: 0 0 44px;
+  font-size: var(--site-body-lg);
+  line-height: var(--site-leading-prose);
+  text-align: justify;
+  text-wrap: pretty;
+}
+
+.chapoLarge {
+  max-width: var(--site-measure-900);
+  margin: 0 0 44px;
+  font-size: var(--site-body-lg);
+  line-height: var(--site-leading-prose);
+  text-wrap: pretty;
+}
+
+.numero {
+  margin: 0 0 12px;
+  color: var(--site-gold);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label);
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+}
+
+.voletTitre {
+  margin: 0 0 10px;
+  font-family: var(--site-font-display);
+  font-size: var(--site-title-sm);
+  font-weight: var(--font-heading-weight);
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.voletTexte {
+  margin: 0;
+  color: var(--site-muted);
+  font-size: var(--site-body-card);
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.suite {
+  margin: 40px 0 0;
+  font-family: var(--site-font-display);
+  font-size: var(--site-ui-strong);
+  font-weight: var(--font-heading-weight);
+}
+
+/* ── Promesse : trois volets séparés par des filets verticaux ────────────── */
+
+.volets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  border-top: 1px solid var(--site-rule);
+}
+
+.volet {
+  padding: 26px 24px 0 0;
+  border-right: 1px solid var(--site-rule);
+}
+
+.volet:last-child { border-right: 0; }
+
+/* ── Expertises : six pôles ──────────────────────────────────────────────── */
+
+.expertises {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--site-rule);
+  list-style: none;
+}
+
+.expertise {
+  padding: 28px 26px 30px 0;
+  border-bottom: 1px solid var(--site-rule);
+}
+
+.expertiseTitre {
+  margin: 0 0 10px;
+  font-family: var(--site-font-display);
+  font-size: var(--site-title-md);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: var(--site-tracking-title);
+  text-wrap: balance;
+}
+
+/* ── Méthode : sept étapes, une séquence ─────────────────────────────────── */
+
+.methode {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--site-rule);
+  list-style: none;
+}
+
+.etape {
+  padding: 24px 20px 26px 0;
+  border-right: 1px solid var(--site-rule);
+}
+
+.etape:last-child { border-right: 0; }
+
+.etapeNumero {
+  margin: 0 0 10px;
+  color: var(--site-gold-mid);
+  font-family: var(--site-font-display);
+  font-size: var(--site-figure-xs);
+  font-weight: var(--site-figure-weight);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.etapeTitre {
+  margin: 0 0 6px;
+  font-family: var(--site-font-display);
+  font-size: var(--site-title-xs);
+  font-weight: var(--font-heading-weight);
+}
+
+.etapeTexte {
+  margin: 0;
+  color: var(--site-muted);
+  font-size: var(--site-note);
+  line-height: 1.55;
+}
+
+.couches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 40px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ── Cas clients ─────────────────────────────────────────────────────────── */
+
+.cas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.casCarte {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 26px 24px 24px;
+  border: 1px solid var(--site-rule);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.casPays {
+  margin: 0;
+  color: var(--site-gold);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-xs);
+  letter-spacing: var(--site-tracking-label);
+}
+
+.casClient {
+  margin: 0;
+  font-family: var(--site-font-display);
+  font-size: var(--site-title-md);
+  font-weight: var(--font-heading-weight);
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+.casStatut {
+  margin: auto 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--site-rule-softer);
+  color: var(--site-soft);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-xs);
+  letter-spacing: 0.08em;
+}
+
+/* ── Références ──────────────────────────────────────────────────────────── */
+
+.refs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--site-rule);
+  list-style: none;
+}
+
+.ref {
+  padding: 18px 20px 20px 0;
+  border-bottom: 1px solid var(--site-rule-softer);
+}
+
+.refType {
+  margin: 0 0 6px;
+  color: var(--site-gold);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-xs);
+  letter-spacing: var(--site-tracking-label);
+}
+
+.refNom {
+  margin: 0 0 4px;
+  font-family: var(--site-font-display);
+  font-size: var(--site-title-xs);
+  font-weight: var(--font-heading-weight);
+  line-height: 1.25;
+}
+
+.refStatut {
+  margin: 0;
+  color: var(--site-soft);
+  font-size: var(--site-note-sm);
+}
+
+/* ── Empreinte régionale ─────────────────────────────────────────────────── */
+
+.pays {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--site-rule);
+}
+
+.paysCarte {
+  padding: 26px 24px 28px 0;
+  border-right: 1px solid var(--site-rule);
+}
+
+.paysCarte:last-child { border-right: 0; }
+
+.paysNom {
+  margin: 0 0 8px;
+  font-family: var(--site-font-display);
+  font-size: var(--site-title-md);
+  font-weight: 400;
+  letter-spacing: var(--site-tracking-title);
+}
+
+.paysKicker {
+  margin: 0 0 10px;
+  color: var(--site-gold);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-xs);
+  letter-spacing: var(--site-tracking-label);
+}
+
+/* ── Appel à l'action ────────────────────────────────────────────────────── */
+
+.appel {
+  max-width: var(--site-measure-780);
+  text-align: left;
+}
+
+.appelTitre {
+  margin: 0 0 18px;
+  color: var(--site-on-ground);
+  font-family: var(--site-font-display);
+  font-size: var(--site-display-cta);
+  font-weight: 400;
+  line-height: var(--site-leading-title);
+  letter-spacing: var(--site-tracking-title);
+  text-wrap: balance;
+}
+
+.appelChapo {
+  margin: 0 0 32px;
+  color: var(--site-on-ground-body);
+  font-size: var(--site-body-lg);
+  line-height: var(--site-leading-body);
+}
+
+/* ── Replis provisoires — artboard des pages publiques non livré ─────────── */
+
+@media (max-width: 900px) {
+  .heroCorps {
+    grid-template-columns: 1fr;
+    gap: 48px;
+    padding-block: 72px 56px;
+  }
+
+  .heroStats {
+    grid-template-columns: 1fr 1fr;
+    padding-left: 26px;
+  }
+
+  .volet,
+  .etape,
+  .paysCarte {
+    border-right: 0;
+    border-bottom: 1px solid var(--site-rule);
+    padding-right: 0;
+  }
+
+  .chapoJustifie { text-align: left; }
+  .tete { margin-bottom: 32px; }
+}

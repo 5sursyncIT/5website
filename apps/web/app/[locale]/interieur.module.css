@@ -1,0 +1,293 @@
+/* Feuille partagée par les cinq pages intérieures. Une seule feuille plutôt
+   qu'une par page : ces pages emploient exactement les mêmes blocs, et les
+   dupliquer ferait diverger le rythme page après page. */
+
+.entete {
+  border-bottom: 1px solid var(--site-rule);
+  background: var(--color-surface);
+}
+
+.enteteCorps {
+  max-width: var(--site-shell);
+  margin: 0 auto;
+  padding: 80px var(--site-inset) 64px;
+}
+
+.titre {
+  max-width: 20ch;
+  margin: 18px 0 0;
+  font-family: var(--site-font-display);
+  font-size: var(--site-display-page);
+  font-weight: 400;
+  line-height: var(--site-leading-title);
+  letter-spacing: var(--site-tracking-display);
+  text-wrap: balance;
+}
+
+.titreLarge { max-width: 26ch; }
+
+.chapo {
+  max-width: var(--site-measure);
+  margin: 22px 0 0;
+  font-size: var(--site-body-lg);
+  line-height: var(--site-leading-prose);
+  text-wrap: pretty;
+}
+
+.tete { margin-bottom: 40px; }
+
+.texte {
+  margin: 0;
+  color: var(--site-muted);
+  font-size: var(--site-body-card);
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.texteLong {
+  max-width: var(--site-measure);
+  margin: 0 0 20px;
+  font-size: var(--site-body-lg);
+  line-height: var(--site-leading-prose);
+  text-wrap: pretty;
+}
+
+.numero {
+  margin: 0 0 12px;
+  color: var(--site-gold);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label);
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* — pôles d'expertise, en pleine largeur — */
+.poles {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--site-rule);
+  list-style: none;
+}
+
+.pole {
+  display: grid;
+  grid-template-columns: 96px 1fr 1fr;
+  gap: var(--site-gutter-md);
+  padding: 34px 0 36px;
+  border-bottom: 1px solid var(--site-rule);
+}
+
+.poleTitre {
+  margin: 0;
+  font-family: var(--site-font-display);
+  font-size: var(--site-title-lg);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: var(--site-tracking-title);
+  text-wrap: balance;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* — grilles de cartes — */
+.cartes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--site-rule);
+  list-style: none;
+}
+
+.carte {
+  padding: 26px 26px 28px 0;
+  border-bottom: 1px solid var(--site-rule);
+}
+
+.carteTitre {
+  margin: 0 0 10px;
+  font-family: var(--site-font-display);
+  font-size: var(--site-title-sm);
+  font-weight: var(--font-heading-weight);
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+/* — familles technologiques — */
+.familles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--site-rule);
+  list-style: none;
+}
+
+.famille {
+  padding: 24px 24px 26px 0;
+  border-right: 1px solid var(--site-rule);
+}
+
+.famille:last-child { border-right: 0; }
+
+.familleTitre {
+  margin: 0 0 12px;
+  font-family: var(--site-font-display);
+  font-size: var(--site-title-xs);
+  font-weight: var(--font-heading-weight);
+}
+
+.familleItems {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  color: var(--site-muted);
+  font-size: var(--site-note);
+  list-style: none;
+}
+
+/* — cas long — */
+.cas {
+  padding-block: var(--site-section-sm);
+  border-top: 1px solid var(--site-rule);
+}
+
+.casPays {
+  margin: 0 0 14px;
+  color: var(--site-gold);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label);
+  letter-spacing: var(--site-tracking-kicker);
+}
+
+.casTitre {
+  max-width: 24ch;
+  margin: 0 0 20px;
+  font-family: var(--site-font-display);
+  font-size: var(--site-title-app);
+  font-weight: 500;
+  line-height: var(--site-leading-title);
+  letter-spacing: var(--site-tracking-title);
+  text-wrap: balance;
+}
+
+.casGrille {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: var(--site-gutter);
+  align-items: start;
+}
+
+.lots {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--site-rule);
+  list-style: none;
+}
+
+.lot {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 14px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--site-rule-softer);
+  align-items: baseline;
+  font-size: var(--site-body-sm);
+}
+
+.lotNumero {
+  color: var(--site-gold);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.valeur {
+  padding: 22px 24px;
+  border-left: 2px solid var(--site-gold);
+  background: var(--site-gold-wash);
+}
+
+.valeurKicker {
+  margin: 0 0 8px;
+  color: var(--site-gold-deep);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-xs);
+  letter-spacing: var(--site-tracking-label);
+}
+
+.statut {
+  margin: 18px 0 0;
+  color: var(--site-soft);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-xs);
+  letter-spacing: 0.08em;
+  line-height: 1.7;
+}
+
+/* — remplacement de photo, en attendant les images réelles — */
+.photo {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  padding: 24px;
+  border: 1px solid var(--site-rule);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--site-faint);
+  font-family: var(--site-font-mono);
+  font-size: var(--site-label-xs);
+  letter-spacing: var(--site-tracking-label);
+  text-align: center;
+}
+
+/* — modules C-GIM — */
+.modules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 30px;
+  padding-top: 34px;
+  border-top: 1px solid var(--site-rule);
+}
+
+.reserve {
+  max-width: var(--site-measure);
+  margin: 30px 0 0;
+  padding-left: 18px;
+  border-left: 1px solid var(--site-rule);
+  color: var(--site-soft);
+  font-size: var(--site-note);
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .enteteCorps { padding-block: 56px 44px; }
+
+  .pole,
+  .casGrille { grid-template-columns: 1fr; gap: var(--site-gutter-md); }
+  .famille { border-right: 0; border-bottom: 1px solid var(--site-rule); padding-right: 0; }
+  .carte { padding-right: 0; }
+}

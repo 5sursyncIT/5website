@@ -116,6 +116,12 @@ jobs:
       - name: Régression visuelle
         run: npm run design:visual
 
+      # Le budget est mesuré sur réseau bridé, dans le même conteneur : mesuré
+      # en local sur fibre, il ne dirait rien des connexions auxquelles ce site
+      # s'adresse.
+      - name: Budget de performance
+        run: npm run perf:budget
+
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
