@@ -16,10 +16,19 @@ const API = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
 export async function apiGet(chemin) {
   const jar = await cookies();
 
-  const reponse = await fetch(`${API}${chemin}`, {
-    headers: { cookie: jar.toString() },
-    cache: 'no-store',
-  });
+  let reponse;
+  try {
+    reponse = await fetch(`${API}${chemin}`, {
+      headers: { cookie: jar.toString() },
+      cache: 'no-store',
+    });
+  } catch (erreur) {
+    // API injoignable. On le distingue d'une réponse d'erreur : l'appelant
+    // peut vouloir dégrader plutôt qu'échouer — la page de connexion, par
+    // exemple, doit rester affichable quand l'API est à terre, sinon plus
+    // personne ne peut se connecter au moment où le service revient.
+    return { statut: 0, donnees: null, injoignable: true, erreur };
+  }
 
   if (reponse.status === 401) return { statut: 401, donnees: null };
   if (reponse.status === 403) return { statut: 403, donnees: null };

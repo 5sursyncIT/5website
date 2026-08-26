@@ -64,6 +64,11 @@ jobs:
         run: npm run db:migrate
 
       - name: Tests
+        env:
+          # Le stockage documentaire vise /srv par défaut, que le runner ne
+          # peut pas créer. Sans cette variable, les tests de dépôt échouent
+          # en 500 sans que la cause apparaisse.
+          DOCUMENTS_DIR: ${{ runner.temp }}/documents
         run: npm test
 
       - name: Build

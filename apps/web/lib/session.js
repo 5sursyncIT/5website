@@ -19,6 +19,14 @@ export async function exigerSession(locale = 'fr', retour = null) {
   return donnees;
 }
 
+/**
+ * Session si elle existe, null sinon — y compris quand l'API ne répond pas.
+ *
+ * Ne pas pouvoir CONFIRMER une session n'est pas la même chose qu'en avoir
+ * une : on retombe sur l'anonyme. C'est ce qui garde la page de connexion
+ * affichable pendant une panne d'API — sans quoi elle renverrait 500, et
+ * personne ne pourrait se connecter à la reprise du service.
+ */
 export async function sessionEventuelle() {
   const { statut, donnees } = await apiGet('/api/v1/auth/moi');
   return statut === 200 ? donnees : null;

@@ -73,6 +73,25 @@ function confiner(chemin) {
  * @param {{organisationId: string, documentId: string, contenu: Buffer, nomOrigine: string}} entree
  * @returns {Promise<{chemin: string, typeMime: string, tailleOctets: number, empreinte: Buffer}>}
  */
+/**
+ * Vérifie que le stockage est utilisable, au démarrage.
+ *
+ * Sans cela, une racine non inscriptible ne se manifeste qu'au premier dépôt,
+ * sous la forme d'une erreur 500 opaque — c'est-à-dire devant un utilisateur
+ * plutôt que devant l'exploitant.
+ */
+export async function verifierStockage() {
+  try {
+    await mkdir(RACINE, { recursive: true });
+    const sonde = join(RACINE, '.ecriture-test');
+    await writeFile(sonde, 'ok');
+    await unlink(sonde);
+    return { ok: true, racine: RACINE };
+  } catch (erreur) {
+    return { ok: false, racine: RACINE, message: erreur.message };
+  }
+}
+
 export async function ecrire({ organisationId, documentId, contenu, nomOrigine }) {
   if (contenu.length === 0) throw new FichierRefuse('Fichier vide.');
   if (contenu.length > TAILLE_MAX) {
