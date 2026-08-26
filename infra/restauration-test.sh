@@ -45,6 +45,8 @@ MANIFESTE="$(readlink -f "$SOURCE/dernier.manifeste")"
 # shellcheck disable=SC1090
 source "$MANIFESTE"
 
+# Le nom de la base vient du MANIFESTE, produit par la sauvegarde : la
+# restauration n'a pas à deviner ce qui a été sauvegardé.
 echo "═══ Exercice de restauration ═══"
 echo "Sauvegarde : $(basename "$CHIFFRE")  ($methode, $horodatage)"
 echo

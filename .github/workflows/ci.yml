@@ -81,8 +81,8 @@ jobs:
         env:
           SAUVEGARDE_CLE: cle-integration-continue
           POSTGRES_CONTENEUR: ${{ job.services.postgres.id }}
-          POSTGRES_DB: 5sync_test
-          POSTGRES_USER: 5sync
+          # Ni POSTGRES_DB ni POSTGRES_USER : ils se déduisent de DATABASE_URL,
+          # déclarée une seule fois plus haut.
         run: |
           ./infra/sauvegarde.sh
           ./infra/restauration-test.sh

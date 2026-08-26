@@ -27,8 +27,22 @@ set -euo pipefail
 RACINE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DESTINATION="${SAUVEGARDE_DIR:-$RACINE/.sauvegardes}"
 CONTENEUR="${POSTGRES_CONTENEUR:-5sursync-postgres-1}"
-UTILISATEUR="${POSTGRES_USER:-5sync}"
-BASE="${POSTGRES_DB:-5sync}"
+
+# Le nom de base et l'utilisateur se DÉDUISENT de DATABASE_URL quand ils ne
+# sont pas donnés. Les coder en dur ici créerait une seconde source de vérité :
+# c'est exactement ce qui a fait échouer le premier exercice en intégration
+# continue, où la base s'appelle 5sync_ci et non 5sync.
+depuis_url() {
+  local url="${DATABASE_URL:-}" champ="$1"
+  [ -n "$url" ] || return 1
+  case "$champ" in
+    base) printf '%s' "${url##*/}" | cut -d'?' -f1 ;;
+    utilisateur) printf '%s' "${url#*://}" | cut -d':' -f1 ;;
+  esac
+}
+
+UTILISATEUR="${POSTGRES_USER:-$(depuis_url utilisateur || echo 5sync)}"
+BASE="${POSTGRES_DB:-$(depuis_url base || echo 5sync)}"
 HORODATAGE="$(date -u +%Y%m%dT%H%M%SZ)"
 
 DOCKER=docker
