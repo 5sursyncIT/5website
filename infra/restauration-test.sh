@@ -82,10 +82,25 @@ $DOCKER run -d --name "$CONTENEUR" \
   -e POSTGRES_USER=restaure -e POSTGRES_PASSWORD=restaure -e POSTGRES_DB="$base" \
   -p "$PORT:5432" "$IMAGE" >/dev/null
 
-for _ in $(seq 1 60); do
-  $DOCKER exec "$CONTENEUR" pg_isready -U restaure -d "$base" >/dev/null 2>&1 && break
+# pg_isready NE SUFFIT PAS. L'image PostgreSQL lance un serveur TEMPORAIRE le
+# temps de son initialisation, puis le redémarre : pg_isready répond « prêt »
+# contre ce serveur transitoire, et les commandes suivantes tombent pendant le
+# redémarrage. On exige donc trois requêtes réelles consécutives.
+PRETES=0
+for _ in $(seq 1 90); do
+  if $DOCKER exec "$CONTENEUR" psql -U restaure -d "$base" -tAc 'select 1' >/dev/null 2>&1; then
+    PRETES=$((PRETES + 1))
+    [ "$PRETES" -ge 3 ] && break
+  else
+    PRETES=0
+  fi
   sleep 1
 done
+
+if [ "$PRETES" -lt 3 ]; then
+  echo "ÉCHEC : la base de restauration n'a pas répondu de façon stable." >&2
+  exit 1
+fi
 echo "      prête"
 
 # ── 3. Restauration ──────────────────────────────────────────────────────
@@ -105,14 +120,39 @@ GRAVES=$(grep '^pg_restore: error' "$JOURNAL" 2>/dev/null | grep -vci 'role\|own
 GRAVES=${GRAVES:-0}
 echo "      $ERREURS avertissement(s), dont $GRAVES hors propriété de rôles"
 
+# Un exercice qui échoue sans dire pourquoi ne sert à rien : on montre les
+# erreurs qui comptent, au lieu de les laisser dans un fichier temporaire
+# effacé à la sortie.
+if [ "$GRAVES" -gt 0 ]; then
+  grep '^pg_restore: error' "$JOURNAL" | grep -vi 'role\|owner\|permission' | head -5 | sed 's/^/        /'
+fi
+
 # ── 4. Complétude ────────────────────────────────────────────────────────
 echo "[4/5] Comptages…"
-psql_test() { $DOCKER exec "$CONTENEUR" psql -U restaure -d "$base" -tAc "$1" 2>/dev/null | tr -d ' '; }
+# Une requête qui échoue renvoie un marqueur au lieu de faire tomber le script.
+# Sans cela, la moindre indisponibilité interrompt l'exercice après « Comptages »
+# sans un mot d'explication — ce qui est exactement ce qu'un exercice de
+# restauration ne doit pas faire.
+psql_test() {
+  local sortie
+  if sortie="$($DOCKER exec "$CONTENEUR" psql -U restaure -d "$base" -tAc "$1" 2>&1)"; then
+    printf '%s' "$sortie" | tr -d ' \n'
+  else
+    printf 'ERREUR(%s)' "$(printf '%s' "$sortie" | head -1 | cut -c1-60)"
+  fi
+}
 
 ECHECS=0
 verifier() {
   local table="$1" attendu="$2"
   local obtenu; obtenu="$(psql_test "select count(*) from $table")"
+  case "$obtenu" in
+    ERREUR*)
+      printf "      %-16s %s\n" "$table" "$obtenu"
+      ECHECS=$((ECHECS + 1))
+      return
+      ;;
+  esac
   if [ "$obtenu" = "$attendu" ]; then
     printf "      %-16s %-6s conforme\n" "$table" "$obtenu"
   else
